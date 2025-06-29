@@ -1,4 +1,4 @@
-# 📚 Sistema de Biblioteca Online Avançado
+# 📚 Sistema de Biblioteca Online
 
 ## 🎯 Objetivo do Projeto
 
