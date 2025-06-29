@@ -1,6 +1,7 @@
 package io.github.devopMarkz.backend.services;
 
 import io.github.devopMarkz.backend.exceptions.UsuarioInativoException;
+import io.github.devopMarkz.backend.exceptions.handlers.CustomAuthenticationEntryPoint;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,25 +17,33 @@ import java.io.IOException;
 public class AuthenticationFilterService extends OncePerRequestFilter {
 
     private final TokenService tokenService;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
-    public AuthenticationFilterService(TokenService tokenService) {
+    public AuthenticationFilterService(TokenService tokenService, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
         this.tokenService = tokenService;
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = obterTokenDoHeaderDaRequisicao(request);
+        try {
+            String token = obterTokenDoHeaderDaRequisicao(request);
 
-        if(token != null) {
-            var usuario = tokenService.obterUsuario(token);
+            if(token != null) {
+                var usuario = tokenService.obterUsuario(token);
 
-            if(usuario.getAtivo()) {
-                var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else {
-                throw new UsuarioInativoException("Usuário inativo");
+                if(usuario.getAtivo()) {
+                    var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    throw new UsuarioInativoException("Usuário inativo");
+                }
             }
+        } catch (UsuarioInativoException e) {
+            customAuthenticationEntryPoint.commence(request, response, e);
+            return;
         }
+
 
         filterChain.doFilter(request, response);
     }
