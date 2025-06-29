@@ -1,5 +1,6 @@
 package io.github.devopMarkz.backend.config;
 
+import io.github.devopMarkz.backend.exceptions.handlers.CustomAuthenticationEntryPoint;
 import io.github.devopMarkz.backend.services.AuthenticationFilterService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +23,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationFilterService authenticationFilterService) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   AuthenticationFilterService authenticationFilterService,
+                                                   CustomAuthenticationEntryPoint authenticationEntryPoint) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -39,6 +42,9 @@ public class SecurityConfig {
                     authorizeRequests.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
                     authorizeRequests.requestMatchers(HttpMethod.POST, "/usuarios").permitAll();
                     authorizeRequests.anyRequest().authenticated();
+                })
+                .exceptionHandling(exceptions -> {
+                    exceptions.authenticationEntryPoint(authenticationEntryPoint);
                 })
                 .addFilterBefore(authenticationFilterService, UsernamePasswordAuthenticationFilter.class)
                 .build();

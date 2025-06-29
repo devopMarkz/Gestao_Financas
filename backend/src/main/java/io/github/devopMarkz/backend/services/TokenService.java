@@ -28,7 +28,6 @@ public class TokenService {
         this.usuarioRepository = usuarioRepository;
     }
 
-    @Transactional(readOnly = true)
     public String obterToken(Usuario usuario) {
         return gerarToken(usuario);
     }

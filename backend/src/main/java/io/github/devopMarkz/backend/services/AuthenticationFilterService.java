@@ -1,5 +1,6 @@
 package io.github.devopMarkz.backend.services;
 
+import io.github.devopMarkz.backend.exceptions.UsuarioInativoException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,8 +27,13 @@ public class AuthenticationFilterService extends OncePerRequestFilter {
 
         if(token != null) {
             var usuario = tokenService.obterUsuario(token);
-            var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            if(usuario.getAtivo()) {
+                var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                throw new UsuarioInativoException("Usuário inativo");
+            }
         }
 
         filterChain.doFilter(request, response);
