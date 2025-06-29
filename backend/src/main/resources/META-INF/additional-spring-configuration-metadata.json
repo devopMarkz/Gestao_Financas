@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "secret-token",
+      "type": "java.lang.String",
+      "description": "Chave secreta para assinar token JWT."
+  }
+] }

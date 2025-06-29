@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/biblioteca_online
+    username: postgres
+    password: aluno
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  flyway:
+    url: jdbc:postgresql://localhost:5432/biblioteca_online
+    user: postgres
+    password: aluno
+    schemas: public
