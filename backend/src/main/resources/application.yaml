@@ -1,3 +1,22 @@
-spring.application.name=backend
-spring.jpa.open-in-view=false
-spring.profiles.active=dev
+
+
+spring:
+  application:
+    name: backend
+
+  jpa:
+    open-in-view: false
+
+  profiles:
+    active: dev
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+secret-token: ${SECRET_TOKEN}
+
+server:
+  port: 8081
