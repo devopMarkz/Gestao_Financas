@@ -172,7 +172,6 @@ O sistema foi projetado para um fluxo de uso intuitivo e eficiente para usuário
 *   **Vue 2:** Framework JavaScript para construção da interface do usuário.
 *   **Vue Router:** Para gerenciamento de rotas na aplicação frontend.
 *   **Axios:** Cliente HTTP para realizar requisições à API backend.
-*   **Bootstrap ou Tailwind (opcional):** Frameworks CSS para estilização e responsividade.
 
 
 
