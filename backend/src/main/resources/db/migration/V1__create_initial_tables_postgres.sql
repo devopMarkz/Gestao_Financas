@@ -1,68 +1,61 @@
--- V1__create_initial_tables_postgresql.sql
-
-CREATE TABLE usuario (
-                         id BIGSERIAL PRIMARY KEY,
-                         nome VARCHAR(255) NOT NULL,
-                         email VARCHAR(255) NOT NULL UNIQUE,
-                         senha VARCHAR(255) NOT NULL,
-                         perfil VARCHAR(50) NOT NULL, -- ENUM: ROLE_ADMIN, ROLE_USER
-                         ativo BOOLEAN NOT NULL
-);
-
-CREATE TABLE livro (
-                       id BIGSERIAL PRIMARY KEY,
-                       titulo VARCHAR(255) NOT NULL,
-                       autor VARCHAR(255) NOT NULL,
-                       ano INT,
-                       descricao TEXT,
-                       isbn VARCHAR(20) UNIQUE,
-                       editora VARCHAR(255),
-                       genero VARCHAR(255)
-);
-
-CREATE TABLE copia_livro (
-                             id BIGSERIAL PRIMARY KEY,
-                             livro_id BIGINT NOT NULL,
-                             numero_serie VARCHAR(255) NOT NULL UNIQUE,
-                             status VARCHAR(50) NOT NULL, -- ENUM: DISPONIVEL, EMPRESTADO, EM_MANUTENCAO, PERDIDO, DANIFICADO
-                             condicao VARCHAR(50), -- ENUM: NOVO, BOM, REGULAR, RUIM
-                             data_aquisicao DATE,
-                             FOREIGN KEY (livro_id) REFERENCES livro(id)
-);
-
-CREATE TABLE reserva (
-                         id BIGSERIAL PRIMARY KEY,
-                         usuario_id BIGINT NOT NULL,
-                         livro_id BIGINT NOT NULL,
-                         data_reserva TIMESTAMP NOT NULL,
-                         data_expiracao TIMESTAMP,
-                         status VARCHAR(50) NOT NULL, -- ENUM: PENDENTE, APROVADA, CANCELADA
-                         data_aprovacao TIMESTAMP,
-                         FOREIGN KEY (usuario_id) REFERENCES usuario(id),
-                         FOREIGN KEY (livro_id) REFERENCES livro(id)
-);
-
-CREATE TABLE emprestimo (
+-- Tabela de Usuários
+CREATE TABLE tb_usuario (
                             id BIGSERIAL PRIMARY KEY,
-                            reserva_id BIGINT,
-                            usuario_id BIGINT NOT NULL,
-                            copia_livro_id BIGINT NOT NULL,
-                            data_retirada TIMESTAMP NOT NULL,
-                            data_prevista_devolucao TIMESTAMP NOT NULL,
-                            data_devolucao_real TIMESTAMP,
-                            status VARCHAR(50) NOT NULL, -- ENUM: EM_ANDAMENTO, DEVOLVIDO, ATRASADO, CANCELADO
-                            multa DECIMAL(10, 2),
-                            FOREIGN KEY (reserva_id) REFERENCES reserva(id),
-                            FOREIGN KEY (usuario_id) REFERENCES usuario(id),
-                            FOREIGN KEY (copia_livro_id) REFERENCES copia_livro(id)
+                            nome VARCHAR(255) NOT NULL,
+                            email VARCHAR(255) NOT NULL UNIQUE,
+                            senha VARCHAR(255) NOT NULL,
+                            perfil VARCHAR(50) NOT NULL, -- ENUM: ROLE_ADMIN, ROLE_USER
+                            ativo BOOLEAN NOT NULL
 );
 
-CREATE TABLE log_auditoria (
-                               id BIGSERIAL PRIMARY KEY,
-                               usuario_responsavel_id BIGINT NOT NULL,
-                               acao VARCHAR(255) NOT NULL,
-                               entidade_afetada VARCHAR(255) NOT NULL,
-                               data_hora TIMESTAMP NOT NULL,
-                               descricao TEXT,
-                               FOREIGN KEY (usuario_responsavel_id) REFERENCES usuario(id)
+-- Tabela de Categorias
+CREATE TABLE tb_categoria (
+                              id BIGSERIAL PRIMARY KEY,
+                              usuario_id BIGINT NOT NULL,
+                              nome VARCHAR(255) NOT NULL,
+                              tipo VARCHAR(50) NOT NULL, -- ENUM: RECEITA, DESPESA
+                              ativa BOOLEAN NOT NULL DEFAULT TRUE,
+                              FOREIGN KEY (usuario_id) REFERENCES tb_usuario(id)
+);
+
+-- Tabela de Transações
+CREATE TABLE tb_transacao (
+                              id BIGSERIAL PRIMARY KEY,
+                              categoria_id BIGINT NOT NULL,
+                              usuario_id BIGINT NOT NULL,
+                              descricao VARCHAR(255) NOT NULL,
+                              valor DECIMAL(19, 2) NOT NULL,
+                              data_transacao TIMESTAMP NOT NULL,
+                              tipo VARCHAR(50) NOT NULL, -- ENUM: RECEITA, DESPESA
+                              observacoes TEXT,
+                              FOREIGN KEY (categoria_id) REFERENCES tb_categoria(id),
+                              FOREIGN KEY (usuario_id) REFERENCES tb_usuario(id)
+);
+
+-- Tabela de Contas Recorrentes
+CREATE TABLE tb_conta_recorrente (
+                                     id BIGSERIAL PRIMARY KEY,
+                                     usuario_id BIGINT NOT NULL,
+                                     categoria_id BIGINT NOT NULL,
+                                     descricao VARCHAR(255) NOT NULL,
+                                     valor DECIMAL(19, 2) NOT NULL,
+                                     dia_vencimento SMALLINT NOT NULL, -- Ex: 5 (dia 5 de cada mês)
+                                     tipo VARCHAR(50) NOT NULL, -- ENUM: RECEITA, DESPESA
+                                     ativa BOOLEAN NOT NULL DEFAULT TRUE,
+                                     observacoes TEXT,
+                                     FOREIGN KEY (usuario_id) REFERENCES tb_usuario(id),
+                                     FOREIGN KEY (categoria_id) REFERENCES tb_categoria(id)
+);
+
+-- Criação da tabela de orçamentos mensais por categoria
+CREATE TABLE tb_orcamento (
+                              id BIGSERIAL PRIMARY KEY,
+                              usuario_id BIGINT NOT NULL,
+                              categoria_id BIGINT NOT NULL,
+                              mes INTEGER NOT NULL CHECK (mes BETWEEN 1 AND 12),
+                              ano INTEGER NOT NULL CHECK (ano >= 2000),
+                              valor_limite DECIMAL(19, 2) NOT NULL,
+                              FOREIGN KEY (usuario_id) REFERENCES tb_usuario(id),
+                              FOREIGN KEY (categoria_id) REFERENCES tb_categoria(id),
+                              CONSTRAINT uq_orcamento_usuario_categoria_mes UNIQUE (usuario_id, categoria_id, mes, ano)
 );

@@ -1,4 +1,4 @@
-package io.github.devopMarkz.backend.usuario.infraestructure.interfaces.rest;
+package io.github.devopMarkz.backend.usuario.infraestructure.controller;
 
 import io.github.devopMarkz.backend.usuario.application.dto.autenticacao.LoginDTO;
 import io.github.devopMarkz.backend.usuario.application.dto.autenticacao.TokenDTO;
