@@ -2,27 +2,27 @@ package io.github.devopMarkz.backend.usuario.application.dto.autenticacao;
 
 public class TokenDTO {
 
-    private String acess_token;
+    private String access_token;
     private String refresh_token;
 
     public TokenDTO() {
     }
 
-    public TokenDTO(String acess_token) {
-        this.acess_token = acess_token;
+    public TokenDTO(String access_token) {
+        this.access_token = access_token;
     }
 
-    public TokenDTO(String acess_token, String refresh_token) {
-        this.acess_token = acess_token;
+    public TokenDTO(String access_token, String refresh_token) {
+        this.access_token = access_token;
         this.refresh_token = refresh_token;
     }
 
-    public String getAcess_token() {
-        return acess_token;
+    public String getAccess_token() {
+        return access_token;
     }
 
-    public void setAcess_token(String acess_token) {
-        this.acess_token = acess_token;
+    public void setAccess_token(String access_token) {
+        this.access_token = access_token;
     }
 
     public String getRefresh_token() {
