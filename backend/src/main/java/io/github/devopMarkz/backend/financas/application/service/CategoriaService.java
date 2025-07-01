@@ -3,7 +3,7 @@ package io.github.devopMarkz.backend.financas.application.service;
 import io.github.devopMarkz.backend.financas.application.dto.categoria.CategoriaRequestDTO;
 import io.github.devopMarkz.backend.financas.application.dto.categoria.CategoriaResponseDTO;
 import io.github.devopMarkz.backend.financas.domain.model.Categoria;
-import io.github.devopMarkz.backend.financas.domain.model.TipoCategoria;
+import io.github.devopMarkz.backend.financas.domain.model.Tipo;
 import io.github.devopMarkz.backend.financas.domain.repository.CategoriaRepository;
 import io.github.devopMarkz.backend.financas.infraestrutucture.exception.CategoriaInexistenteException;
 import io.github.devopMarkz.backend.financas.infraestrutucture.exception.OperacaoInvalidaException;
@@ -52,7 +52,7 @@ public class CategoriaService {
     }
 
     @Transactional(readOnly = true)
-    public Page<CategoriaResponseDTO> findCategoriasByFilter(String nome, TipoCategoria tipo, Boolean ativa, int pageNumber, int pageSize) {
+    public Page<CategoriaResponseDTO> findCategoriasByFilter(String nome, Tipo tipo, Boolean ativa, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
         Usuario usuarioLogado = obterUsuarioLogado();

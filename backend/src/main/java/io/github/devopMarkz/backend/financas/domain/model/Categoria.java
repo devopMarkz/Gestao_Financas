@@ -22,7 +22,7 @@ public class Categoria {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo", nullable = false)
-    private TipoCategoria tipo;
+    private Tipo tipo;
 
     @Column(name = "ativa", nullable = false)
     private Boolean ativa = true;
@@ -30,13 +30,13 @@ public class Categoria {
     public Categoria() {
     }
 
-    public Categoria(Usuario usuario, String nome, TipoCategoria tipo) {
+    public Categoria(Usuario usuario, String nome, Tipo tipo) {
         this.usuario = usuario;
         this.nome = nome;
         this.tipo = tipo;
     }
 
-    public Categoria(Long id, Usuario usuario, String nome, TipoCategoria tipo, Boolean ativa) {
+    public Categoria(Long id, Usuario usuario, String nome, Tipo tipo, Boolean ativa) {
         this.id = id;
         this.usuario = usuario;
         this.nome = nome;
@@ -68,11 +68,11 @@ public class Categoria {
         this.nome = nome;
     }
 
-    public TipoCategoria getTipo() {
+    public Tipo getTipo() {
         return tipo;
     }
 
-    public void setTipo(TipoCategoria tipo) {
+    public void setTipo(Tipo tipo) {
         this.tipo = tipo;
     }
 

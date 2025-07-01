@@ -1,7 +1,7 @@
 package io.github.devopMarkz.backend.financas.domain.repository;
 
 import io.github.devopMarkz.backend.financas.domain.model.Categoria;
-import io.github.devopMarkz.backend.financas.domain.model.TipoCategoria;
+import io.github.devopMarkz.backend.financas.domain.model.Tipo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +21,7 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
     Page<Categoria> buscarCategoriasFiltradas(
             @Param("usuarioId") Long usuarioId,
             @Param("nome") String nome,
-            @Param("tipo") TipoCategoria tipo,
+            @Param("tipo") Tipo tipo,
             @Param("ativa") Boolean ativa,
             Pageable pageable
     );

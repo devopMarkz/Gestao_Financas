@@ -3,7 +3,7 @@ package io.github.devopMarkz.backend.financas.interfaces.rest;
 import io.github.devopMarkz.backend.financas.application.dto.categoria.CategoriaRequestDTO;
 import io.github.devopMarkz.backend.financas.application.dto.categoria.CategoriaResponseDTO;
 import io.github.devopMarkz.backend.financas.application.service.CategoriaService;
-import io.github.devopMarkz.backend.financas.domain.model.TipoCategoria;
+import io.github.devopMarkz.backend.financas.domain.model.Tipo;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -28,12 +28,12 @@ public class CategoriaController {
     @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<Page<CategoriaResponseDTO>> obterCategorias(
             @RequestParam(name = "nomeCategoria", required = false) String nomeCategoria,
-            @RequestParam(name = "tipoCategoria", required = false) TipoCategoria tipoCategoria,
+            @RequestParam(name = "tipo", required = false) Tipo tipo,
             @RequestParam(name = "ativa", required = false, defaultValue = "true") Boolean ativa,
             @RequestParam(name = "pageNumber", required = false, defaultValue = "0") int pageNumber,
             @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
     ) {
-        Page<CategoriaResponseDTO> categorias = categoriaService.findCategoriasByFilter(nomeCategoria, tipoCategoria, ativa, pageNumber, pageSize);
+        Page<CategoriaResponseDTO> categorias = categoriaService.findCategoriasByFilter(nomeCategoria, tipo, ativa, pageNumber, pageSize);
         return ResponseEntity.ok(categorias);
     }
 
