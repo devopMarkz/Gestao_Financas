@@ -28,6 +28,7 @@ CREATE TABLE tb_transacao (
     data_transacao TIMESTAMP NOT NULL,
     tipo VARCHAR(50) NOT NULL, -- ENUM: RECEITA, DESPESA
     observacoes TEXT,
+    paga BOOLEAN NOT NULL DEFAULT TRUE,
     FOREIGN KEY (categoria_id) REFERENCES tb_categoria(id),
     FOREIGN KEY (usuario_id) REFERENCES tb_usuario(id)
 );

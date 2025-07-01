@@ -39,6 +39,9 @@ public class Transacao {
     @Column(name = "observacoes", columnDefinition = "TEXT")
     private String observacoes;
 
+    @Column(name = "paga", nullable = false)
+    private Boolean paga = true;
+
     public Transacao() {
     }
 
@@ -52,6 +55,17 @@ public class Transacao {
         this.observacoes = observacoes;
     }
 
+    public Transacao(Categoria categoria, Usuario usuario, String descricao, BigDecimal valor, LocalDate dataTransacao, Tipo tipo, String observacoes, Boolean paga) {
+        this.categoria = categoria;
+        this.usuario = usuario;
+        this.descricao = descricao;
+        this.valor = valor;
+        this.dataTransacao = dataTransacao;
+        this.tipo = tipo;
+        this.observacoes = observacoes;
+        this.paga = paga;
+    }
+
     public Transacao(Long id, Categoria categoria, Usuario usuario, String descricao, BigDecimal valor, LocalDate dataTransacao, Tipo tipo, String observacoes) {
         this.id = id;
         this.categoria = categoria;
@@ -61,6 +75,18 @@ public class Transacao {
         this.dataTransacao = dataTransacao;
         this.tipo = tipo;
         this.observacoes = observacoes;
+    }
+
+    public Transacao(Long id, Categoria categoria, Usuario usuario, String descricao, BigDecimal valor, LocalDate dataTransacao, Tipo tipo, String observacoes, Boolean paga) {
+        this.id = id;
+        this.categoria = categoria;
+        this.usuario = usuario;
+        this.descricao = descricao;
+        this.valor = valor;
+        this.dataTransacao = dataTransacao;
+        this.tipo = tipo;
+        this.observacoes = observacoes;
+        this.paga = paga;
     }
 
     public Long getId() {

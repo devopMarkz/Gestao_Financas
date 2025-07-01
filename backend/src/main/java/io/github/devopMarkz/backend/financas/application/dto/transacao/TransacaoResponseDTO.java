@@ -13,18 +13,20 @@ public class TransacaoResponseDTO {
     private LocalDate dataTransacao;
     private Tipo tipo;
     private String observacoes;
+    private Boolean paga;
 
     private CategoriaResponseDTO categoria;
 
     public TransacaoResponseDTO() {}
 
-    public TransacaoResponseDTO(Long id, String descricao, Double valor, LocalDate dataTransacao, Tipo tipo, String observacoes, CategoriaResponseDTO categoria) {
+    public TransacaoResponseDTO(Long id, String descricao, Double valor, LocalDate dataTransacao, Tipo tipo, String observacoes, Boolean paga, CategoriaResponseDTO categoria) {
         this.id = id;
         this.descricao = descricao;
         this.valor = valor;
         this.dataTransacao = dataTransacao;
         this.tipo = tipo;
         this.observacoes = observacoes;
+        this.paga = paga;
         this.categoria = categoria;
     }
 
@@ -82,5 +84,13 @@ public class TransacaoResponseDTO {
 
     public void setCategoria(CategoriaResponseDTO categoria) {
         this.categoria = categoria;
+    }
+
+    public Boolean getPaga() {
+        return paga;
+    }
+
+    public void setPaga(Boolean paga) {
+        this.paga = paga;
     }
 }

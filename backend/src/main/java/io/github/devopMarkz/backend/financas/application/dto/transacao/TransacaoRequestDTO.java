@@ -23,6 +23,8 @@ public class TransacaoRequestDTO {
 
     private String observacoes;
 
+    private Boolean paga = true;
+
     public TransacaoRequestDTO() {
     }
 
@@ -41,6 +43,25 @@ public class TransacaoRequestDTO {
         this.dataTransacao = dataTransacao;
         this.tipo = tipo;
         this.observacoes = observacoes;
+    }
+
+    public TransacaoRequestDTO(Long categoriaId, String descricao, Double valor, LocalDate dataTransacao, Tipo tipo, Boolean paga) {
+        this.categoriaId = categoriaId;
+        this.descricao = descricao;
+        this.valor = valor;
+        this.dataTransacao = dataTransacao;
+        this.tipo = tipo;
+        this.paga = paga;
+    }
+
+    public TransacaoRequestDTO(Long categoriaId, String descricao, Double valor, LocalDate dataTransacao, Tipo tipo, String observacoes, Boolean paga) {
+        this.categoriaId = categoriaId;
+        this.descricao = descricao;
+        this.valor = valor;
+        this.dataTransacao = dataTransacao;
+        this.tipo = tipo;
+        this.observacoes = observacoes;
+        this.paga = paga;
     }
 
     public Long getCategoriaId() {
@@ -89,5 +110,13 @@ public class TransacaoRequestDTO {
 
     public void setObservacoes(String observacoes) {
         this.observacoes = observacoes;
+    }
+
+    public Boolean getPaga() {
+        return paga;
+    }
+
+    public void setPaga(Boolean paga) {
+        this.paga = paga;
     }
 }
