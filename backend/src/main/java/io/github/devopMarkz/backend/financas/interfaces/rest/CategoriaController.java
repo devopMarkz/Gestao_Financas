@@ -31,10 +31,17 @@ public class CategoriaController {
             @RequestParam(name = "tipo", required = false) Tipo tipo,
             @RequestParam(name = "ativa", required = false, defaultValue = "true") Boolean ativa,
             @RequestParam(name = "pageNumber", required = false, defaultValue = "0") int pageNumber,
-            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
+            @RequestParam(name = "pageSize", required = false, defaultValue = "20") int pageSize
     ) {
         Page<CategoriaResponseDTO> categorias = categoriaService.findCategoriasByFilter(nomeCategoria, tipo, ativa, pageNumber, pageSize);
         return ResponseEntity.ok(categorias);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
+    public ResponseEntity<CategoriaResponseDTO> obterCategoriaPorId(@PathVariable Long id) {
+        CategoriaResponseDTO categoria = categoriaService.findCategoriaById(id);
+        return ResponseEntity.ok(categoria);
     }
 
     @PostMapping

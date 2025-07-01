@@ -153,6 +153,14 @@ public class Transacao {
         this.observacoes = observacoes;
     }
 
+    public Boolean getPaga() {
+        return paga;
+    }
+
+    public void setPaga(Boolean paga) {
+        this.paga = paga;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;

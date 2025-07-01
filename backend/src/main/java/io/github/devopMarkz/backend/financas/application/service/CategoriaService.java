@@ -5,7 +5,7 @@ import io.github.devopMarkz.backend.financas.application.dto.categoria.Categoria
 import io.github.devopMarkz.backend.financas.domain.model.Categoria;
 import io.github.devopMarkz.backend.financas.domain.model.Tipo;
 import io.github.devopMarkz.backend.financas.domain.repository.CategoriaRepository;
-import io.github.devopMarkz.backend.financas.infraestrutucture.exception.CategoriaInexistenteException;
+import io.github.devopMarkz.backend.financas.infraestrutucture.exception.EntidadeInexistenteException;
 import io.github.devopMarkz.backend.financas.infraestrutucture.exception.OperacaoInvalidaException;
 import io.github.devopMarkz.backend.shared.config.UsuarioAutenticadoService;
 import io.github.devopMarkz.backend.shared.utils.StringPadronization;
@@ -63,10 +63,20 @@ public class CategoriaService {
                 .map(cat -> modelMapper.map(cat, CategoriaResponseDTO.class));
     }
 
+    @Transactional(readOnly = true)
+    public CategoriaResponseDTO findCategoriaById(Long id) {
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(() -> new EntidadeInexistenteException("Categoria inexistente!"));
+
+        verificaSeCategoriaFoiCriadaPeloUsuarioLogado(categoria);
+
+        return modelMapper.map(categoria, CategoriaResponseDTO.class);
+    }
+
     @Transactional
     public void update(Long id, CategoriaRequestDTO categoriaRequestDTO) {
-        Categoria categoria = categoriaRepository.findById(id).
-                orElseThrow(() -> new CategoriaInexistenteException("Categoria inexistente!"));
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(() -> new EntidadeInexistenteException("Categoria inexistente!"));
 
         verificaSeCategoriaFoiCriadaPeloUsuarioLogado(categoria);
 
@@ -83,7 +93,7 @@ public class CategoriaService {
         verificaSeCategoriaFoiCriadaPeloUsuarioLogado(categoria);
 
         if(categoria == null) {
-            throw new CategoriaInexistenteException("Categoria inexistente!");
+            throw new EntidadeInexistenteException("Categoria inexistente!");
         }
 
         categoriaRepository.deleteById(id);
@@ -99,7 +109,7 @@ public class CategoriaService {
         Usuario usuarioLogado = obterUsuarioLogado();
 
         if(!categoria.getUsuario().equals(usuarioLogado)) {
-            throw new OperacaoInvalidaException("Operação " + method + " inviável. A categoria " + categoria.getNome() + " não pertence ao usuário " + usuarioLogado.getEmail());
+            throw new OperacaoInvalidaException("Operação " + method + " inviável. A categoria " + categoria.getId() + " não pertence ao usuário " + usuarioLogado.getEmail());
         }
     }
 
