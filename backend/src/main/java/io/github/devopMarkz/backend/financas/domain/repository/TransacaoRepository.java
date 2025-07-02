@@ -42,7 +42,8 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
             "SELECT COALESCE(SUM(t.valor), 0) FROM Transacao t " +
             "WHERE t.usuario.id = :usuarioId " +
                     "AND t.tipo = :tipo " +
-                    "AND t.dataTransacao BETWEEN :inicio AND :fim"
+                    "AND t.dataTransacao BETWEEN :inicio AND :fim " +
+                    "AND t.paga = true"
     )
     BigDecimal somarPorTipoEPeriodo(@Param("tipo") Tipo tipo,
                                     @Param("inicio") LocalDate dataInicio,

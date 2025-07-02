@@ -7,7 +7,7 @@ public class ErroDTO {
     private Instant timestamp;
     private Integer status;
     private String message;
-    private String path;
+    private String pat;
 
     public ErroDTO() {
     }
@@ -16,7 +16,7 @@ public class ErroDTO {
         this.timestamp = timestamp;
         this.status = status;
         this.message = message;
-        this.path = pat;
+        this.pat = pat;
     }
 
     public Instant getTimestamp() {
@@ -44,10 +44,10 @@ public class ErroDTO {
     }
 
     public String getPat() {
-        return path;
+        return pat;
     }
 
     public void setPat(String pat) {
-        this.path = pat;
+        this.pat = pat;
     }
 }
