@@ -1,5 +1,6 @@
 package io.github.devopMarkz.backend.usuario.infraestructure.security;
 
+import io.github.devopMarkz.backend.usuario.infraestructure.security.handlers.CustomAccessDeniedHandler;
 import io.github.devopMarkz.backend.usuario.infraestructure.security.handlers.CustomAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,7 +30,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    AuthenticationFilterService authenticationFilterService,
-                                                   CustomAuthenticationEntryPoint authenticationEntryPoint) throws Exception {
+                                                   CustomAuthenticationEntryPoint authenticationEntryPoint,
+                                                   CustomAccessDeniedHandler accessDeniedHandler) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -50,6 +52,7 @@ public class SecurityConfig {
                 })
                 .exceptionHandling(exceptions -> {
                     exceptions.authenticationEntryPoint(authenticationEntryPoint);
+                    exceptions.accessDeniedHandler(accessDeniedHandler);
                 })
                 .addFilterBefore(authenticationFilterService, UsernamePasswordAuthenticationFilter.class)
                 .build();
