@@ -1,5 +1,7 @@
 package io.github.devopMarkz.backend.usuario.infraestructure.security.handlers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.devopMarkz.backend.shared.dto.ErroDTO;
 import io.github.devopMarkz.backend.usuario.infraestructure.exception.UsuarioInativoException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -8,6 +10,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.Instant;
 
 @Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -28,13 +31,9 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String json = String.format("""
-            {
-              "status": 401,
-              "erro": "Não autorizado",
-              "mensagem": "%s"
-            }
-            """, mensagem);
+        ErroDTO erroDTO = new ErroDTO(Instant.now(), 401, mensagem, request.getRequestURI());
+
+        String json = new ObjectMapper().writeValueAsString(erroDTO);
 
         response.getWriter().write(json);
     }
