@@ -12,13 +12,24 @@ const routes = [
     component: LoginView
   },
   {
-    path: '*',
-    redirect: '/login'
+    name: 'DashboardView',
+    path: '/dashboard',
+    component: () => import('@/views/DashboardView.vue'),
+    meta: { requiresAuth: true }
   },
   {
-    name: 'AutenticadoView',
-    path: '/autenticado',
-    component: () => import ('@/views/AutenticadoView.vue')
+    name: 'CategoriasView',
+    path: '/categorias',
+    component: () => import('@/views/CategoriasView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/',
+    redirect: '/dashboard'
+  },
+  {
+    path: '*',
+    redirect: '/login'
   }
 ]
 
@@ -31,7 +42,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!authService.isAuthenticated()) {
-      next('/login');
+      next({path: '/login', replace: true});
     } else {
       next();
     }

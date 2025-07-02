@@ -9,7 +9,6 @@
           <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
         </svg>
       </div>
-
       <h2>Controle Financeiro</h2>
       <p class="subtitle">Acesse sua conta para gerenciar suas finanças</p>
 
@@ -102,9 +101,10 @@
 </template>
 
 <script>
-import authService from '../services/authService';
+import authService from '../services/authService'
 
 export default {
+  name: 'LoginView',
   data() {
     return {
       email: '',
@@ -113,20 +113,41 @@ export default {
       mostrarSenha: false,
       carregando: false,
       lembrarMe: false
-    };
+    }
   },
+  
+  // Verificar se já está logado
+  beforeMount() {
+    if (authService.isAuthenticated()) {
+      this.$router.push('/dashboard')
+    }
+  },
+  
   methods: {
     async fazerLogin() {
-      this.carregando = true;
-      this.erro = '';
+      this.carregando = true
+      this.erro = ''
       
       try {
-        await authService.login(this.email, this.senha);
-        this.$router.push('/autenticado');
-      } catch (e) {
-        this.erro = 'E-mail ou senha inválidos';
+        await authService.login(this.email, this.senha)
+        
+        // Sucesso no login
+        console.log('Login realizado com sucesso!')
+        this.$router.push('/dashboard')
+        
+      } catch (error) {
+        console.error('Erro no login:', error)
+        
+        // Tratamento de diferentes tipos de erro
+        if (error.message.includes('401') || error.message.includes('Credenciais')) {
+          this.erro = 'E-mail ou senha inválidos'
+        } else if (error.message.includes('fetch')) {
+          this.erro = 'Erro de conexão. Verifique sua internet.'
+        } else {
+          this.erro = 'Erro interno. Tente novamente em alguns instantes.'
+        }
       } finally {
-        this.carregando = false;
+        this.carregando = false
       }
     }
   }
