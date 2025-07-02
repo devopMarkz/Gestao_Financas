@@ -5,6 +5,7 @@ import io.github.devopMarkz.backend.financas.application.dto.categoria.Categoria
 import io.github.devopMarkz.backend.financas.domain.model.Categoria;
 import io.github.devopMarkz.backend.financas.domain.model.Tipo;
 import io.github.devopMarkz.backend.financas.domain.repository.CategoriaRepository;
+import io.github.devopMarkz.backend.financas.domain.repository.TransacaoRepository;
 import io.github.devopMarkz.backend.financas.infraestrutucture.exception.EntidadeInexistenteException;
 import io.github.devopMarkz.backend.financas.infraestrutucture.exception.OperacaoInvalidaException;
 import io.github.devopMarkz.backend.shared.config.UsuarioAutenticadoService;
@@ -25,15 +26,17 @@ public class CategoriaService {
     private final ModelMapper modelMapper;
     private final StringPadronization stringPadronization;
     private final HttpServletRequest request;
+    private final TransacaoRepository transacaoRepository;
 
     public CategoriaService(CategoriaRepository categoriaRepository,
                             ModelMapper modelMapper,
                             HttpServletRequest request,
-                            StringPadronization stringPadronization) {
+                            StringPadronization stringPadronization, TransacaoRepository transacaoRepository) {
         this.categoriaRepository = categoriaRepository;
         this.modelMapper = modelMapper;
         this.request = request;
         this.stringPadronization = stringPadronization;
+        this.transacaoRepository = transacaoRepository;
     }
 
     @Transactional
@@ -94,6 +97,10 @@ public class CategoriaService {
 
         if(categoria == null) {
             throw new EntidadeInexistenteException("Categoria inexistente!");
+        }
+
+        if(transacaoRepository.existsByCategoria_Id(categoria.getId())) {
+            throw new OperacaoInvalidaException("Categoria está sendo usada em uma transação e, por isso, não pode ser excluída.");
         }
 
         categoriaRepository.deleteById(id);

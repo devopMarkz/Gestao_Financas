@@ -49,4 +49,6 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
                                     @Param("fim") LocalDate dataFim,
                                     @Param("usuarioId") Long usuarioId);
 
+    boolean existsByCategoria_Id(Long categoriaId);
+
 }

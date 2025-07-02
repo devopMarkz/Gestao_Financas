@@ -91,8 +91,6 @@ public class TransacaoService {
 
         verificaSeTransacaoFoiCriadaPeloUsuarioLogado(transacaoExistente);
 
-        modelMapper.map(transacaoRequest, transacaoExistente);
-
         Categoria categoria = categoriaRepository.findById(transacaoRequest.getCategoriaId())
                 .orElseThrow(() -> new EntidadeInexistenteException("Categoria inexistente!"));
 
@@ -102,12 +100,20 @@ public class TransacaoService {
                             "' da transação deve ser igual ao tipo '" + categoria.getTipo().name() + "' da categoria."
             );
         }
+
+        transacaoExistente.setDescricao(transacaoRequest.getDescricao());
+        transacaoExistente.setValor(transacaoRequest.getValor());
+        transacaoExistente.setDataTransacao(transacaoRequest.getDataTransacao());
+        transacaoExistente.setTipo(transacaoRequest.getTipo());
+        transacaoExistente.setObservacoes(transacaoRequest.getObservacoes());
+        transacaoExistente.setPaga(transacaoRequest.getPaga());
         transacaoExistente.setCategoria(categoria);
 
         Transacao atualizado = transacaoRepository.save(transacaoExistente);
 
         return modelMapper.map(atualizado, TransacaoResponseDTO.class);
     }
+
 
     @Transactional
     public void deletar(Long id) {
