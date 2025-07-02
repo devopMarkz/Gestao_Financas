@@ -1,8 +1,14 @@
 import authService from "./authService"
 import apiRoutes from "./apiRoutes"
 
+function logErrorToLocalStorage(errorMessage) {
+  const errorLog = JSON.parse(localStorage.getItem("apiErrors") || "[]")
+  const timestamp = new Date().toISOString()
+  errorLog.push({ message: errorMessage, time: timestamp })
+  localStorage.setItem("apiErrors", JSON.stringify(errorLog))
+}
+
 class ApiService {
-  // Método para fazer requisições autenticadas
   async request(url, options = {}) {
     const token = authService.getToken()
 
@@ -17,71 +23,62 @@ class ApiService {
 
     const response = await fetch(url, config)
 
-    // Se token expirou, redirecionar para login
     if (response.status === 401) {
+      const errorMsg = "Token expirado"
+      logErrorToLocalStorage(errorMsg)
       authService.logout()
       window.location.href = "/login"
-      throw new Error("Token expirado")
+      throw new Error(errorMsg)
     }
 
-    // Se não foi bem-sucedido, lançar erro com mais detalhes
     if (!response.ok) {
       let errorMessage = `Erro na API: ${response.status}`
 
       try {
         const errorData = await response.text()
         if (errorData) {
-          // Tentar fazer parse do JSON de erro
           try {
             const errorJson = JSON.parse(errorData)
-            // Usar a mensagem do backend se disponível
-            errorMessage = errorJson.message || errorJson.error || errorJson.detail || errorMessage
+            errorMessage =
+              errorJson.message ||
+              errorJson.error ||
+              errorJson.detail ||
+              errorMessage
           } catch {
-            // Se não for JSON, usar o texto diretamente
             errorMessage = errorData
           }
         }
       } catch {
-        // Se não conseguir ler o erro, usar mensagem padrão
+        // OI
       }
 
-      // Criar erro com status e mensagem
+      logErrorToLocalStorage(errorMessage)
+
       const error = new Error(errorMessage)
       error.status = response.status
       throw error
     }
 
-    // Se chegou aqui, a requisição foi bem-sucedida
-    // Se a resposta é 204 (No Content) - DELETE bem-sucedido
-    if (response.status === 204) {
+    if (response.status === 204 || response.status === 201) {
       return true
     }
 
-    // Se a resposta é 201 (Created) - POST bem-sucedido
-    if (response.status === 201) {
-      return true
-    }
-
-    // Para status 200, tentar ler JSON
     try {
       const text = await response.text()
       if (!text || text.trim() === "") {
         return true
       }
       return JSON.parse(text)
-    } catch (error) {
-      // Se não conseguir fazer parse, retornar true (sucesso sem dados)
+    } catch {
       return true
     }
   }
 
-  // Métodos específicos para Dashboard
   async getResumo(params = {}) {
     const urlParams = new URLSearchParams(params)
     return this.request(`${apiRoutes.resumo}?${urlParams.toString()}`)
   }
 
-  // Métodos específicos para Transações
   async getTransacoes(params = {}) {
     const urlParams = new URLSearchParams(params)
     return this.request(`${apiRoutes.transacoes}?${urlParams.toString()}`)
@@ -107,7 +104,6 @@ class ApiService {
     })
   }
 
-  // Métodos específicos para Categorias
   async getCategorias(params = {}) {
     const urlParams = new URLSearchParams(params)
     return this.request(`${apiRoutes.categorias}?${urlParams.toString()}`)

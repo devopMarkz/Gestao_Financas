@@ -143,46 +143,129 @@
         </div>
 
         <div v-if="transacoes.length" class="transacoes-table">
-          <div class="table-header">
-            <div class="th">Descrição</div>
-            <div class="th">Valor</div>
-            <div class="th">Data</div>
-            <div class="th">Categoria</div>
-            <div class="th">Status</div>
-            <div class="th">Ações</div>
-          </div>
-          <div class="table-body">
-            <div v-for="tx in transacoes" :key="tx.id" class="table-row">
-              <div class="td">
-                <div>
-                  <div class="tx-descricao">{{ tx.descricao }}</div>
-                  <div class="tx-observacoes" v-if="tx.observacoes">{{ tx.observacoes }}</div>
+          <!-- Versão Desktop - Tabela Tradicional -->
+          <div class="desktop-table">
+            <div class="table-header">
+              <div class="th">Descrição</div>
+              <div class="th">Valor</div>
+              <div class="th">Data</div>
+              <div class="th">Categoria</div>
+              <div class="th">Status</div>
+              <div class="th">Ações</div>
+            </div>
+            <div class="table-body">
+              <div v-for="tx in transacoes" :key="tx.id" class="table-row">
+                <div class="td">
+                  <div>
+                    <div class="tx-descricao">{{ tx.descricao }}</div>
+                    <div class="tx-observacoes" v-if="tx.observacoes">{{ tx.observacoes }}</div>
+                  </div>
+                </div>
+                <div class="td valor" :class="tx.tipo.toLowerCase()">{{ formatarBRL(tx.valor) }}</div>
+                <div class="td">{{ formatarData(tx.dataTransacao) }}</div>
+                <div class="td">
+                  <span class="categoria-badge">{{ tx.categoria.nome }}</span>
+                </div>
+                <div class="td">
+                  <span class="status-badge" :class="tx.paga ? 'paga' : 'pendente'">
+                    {{ tx.paga ? 'Paga' : 'Pendente' }}
+                  </span>
+                </div>
+                <div class="td">
+                  <button class="action-btn edit" @click="abrirModalTransacao(tx)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M18.5 2.49998C18.8978 2.10216 19.4374 1.87866 20 1.87866C20.5626 1.87866 21.1022 2.10216 21.5 2.49998C21.8978 2.89781 22.1213 3.43737 22.1213 3.99998C22.1213 4.56259 21.8978 5.10216 21.5 5.49998L12 15L8 16L9 12L18.5 2.49998Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <button class="action-btn delete" @click="confirmarExclusao(tx)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <polyline points="3,6 5,6 21,6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
-              <div class="td valor" :class="tx.tipo.toLowerCase()">{{ formatarBRL(tx.valor) }}</div>
-              <div class="td">{{ formatarData(tx.dataTransacao) }}</div>
-              <div class="td">
-                <span class="categoria-badge">{{ tx.categoria.nome }}</span>
-              </div>
-              <div class="td">
-                <span class="status-badge" :class="tx.paga ? 'paga' : 'pendente'">
-                  {{ tx.paga ? 'Paga' : 'Pendente' }}
-                </span>
-              </div>
-              <div class="td">
-                <button class="action-btn edit" @click="abrirModalTransacao(tx)">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M18.5 2.49998C18.8978 2.10216 19.4374 1.87866 20 1.87866C20.5626 1.87866 21.1022 2.10216 21.5 2.49998C21.8978 2.89781 22.1213 3.43737 22.1213 3.99998C22.1213 4.56259 21.8978 5.10216 21.5 5.49998L12 15L8 16L9 12L18.5 2.49998Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </div>
+          </div>
+
+          <!-- Versão Mobile - Lista Compacta Expansível -->
+          <div class="mobile-list">
+            <div v-for="tx in transacoes" :key="tx.id" class="table-row" :class="{ expanded: isTransacaoExpandida(tx.id) }">
+              <!-- Versão Compacta -->
+              <div class="transaction-compact" @click="toggleTransacao(tx.id)">
+                <div class="compact-main">
+                  <div class="compact-info">
+                    <span class="compact-description">{{ tx.descricao }}</span>
+                    <span class="compact-date">{{ formatarData(tx.dataTransacao) }}</span>
+                  </div>
+                  <div class="compact-right">
+                    <span class="compact-value" :class="tx.tipo.toLowerCase()">{{ formatarBRL(tx.valor) }}</span>
+                    <span class="compact-status" :class="tx.paga ? 'paga' : 'pendente'">
+                      {{ tx.paga ? 'Paga' : 'Pendente' }}
+                    </span>
+                  </div>
+                </div>
+                <div class="expand-indicator">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="chevron" :class="{ rotated: isTransacaoExpandida(tx.id) }">
+                    <polyline points="6,9 12,15 18,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
-                </button>
-                <button class="action-btn delete" @click="confirmarExclusao(tx)">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <polyline points="3,6 5,6 21,6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
+                </div>
               </div>
+
+              <!-- Versão Expandida -->
+              <transition name="expand">
+                <div v-show="isTransacaoExpandida(tx.id)" class="transaction-expanded">
+                  <div class="expanded-content">
+                    <div class="expanded-row">
+                      <div class="expanded-field">
+                        <label>Descrição Completa</label>
+                        <div class="tx-descricao">{{ tx.descricao }}</div>
+                        <div class="tx-observacoes" v-if="tx.observacoes">{{ tx.observacoes }}</div>
+                      </div>
+                    </div>
+                    
+                    <div class="expanded-row">
+                      <div class="expanded-field">
+                        <label>Valor</label>
+                        <div class="expanded-value" :class="tx.tipo.toLowerCase()">{{ formatarBRL(tx.valor) }}</div>
+                      </div>
+                      <div class="expanded-field">
+                        <label>Data</label>
+                        <div>{{ formatarData(tx.dataTransacao) }}</div>
+                      </div>
+                    </div>
+
+                    <div class="expanded-row">
+                      <div class="expanded-field">
+                        <label>Categoria</label>
+                        <span class="categoria-badge">{{ tx.categoria.nome }}</span>
+                      </div>
+                      <div class="expanded-field">
+                        <label>Status</label>
+                        <span class="status-badge" :class="tx.paga ? 'paga' : 'pendente'">
+                          {{ tx.paga ? 'Paga' : 'Pendente' }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="expanded-actions">
+                      <button class="action-btn edit" @click.stop="abrirModalTransacao(tx)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M18.5 2.49998C18.8978 2.10216 19.4374 1.87866 20 1.87866C20.5626 1.87866 21.1022 2.10216 21.5 2.49998C21.8978 2.89781 22.1213 3.43737 22.1213 3.99998C22.1213 4.56259 21.8978 5.10216 21.5 5.49998L12 15L8 16L9 12L18.5 2.49998Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button class="action-btn delete" @click.stop="confirmarExclusao(tx)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <polyline points="3,6 5,6 21,6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </transition>
             </div>
           </div>
         </div>
@@ -322,6 +405,9 @@ export default {
   name: 'DashboardView',
   data() {
     return {
+      // Controle das transações expandidas (apenas mobile)
+      transacoesExpandidas: new Set(),
+
       // Controle dos filtros
       mostrarFiltros: false,
       
@@ -372,6 +458,21 @@ export default {
     }
   },
   methods: {
+    toggleTransacao(transacaoId) {
+      if (this.transacoesExpandidas.has(transacaoId)) {
+        this.transacoesExpandidas.delete(transacaoId);
+      } else {
+        this.transacoesExpandidas.add(transacaoId);
+      }
+      // Forçar reatividade
+      this.transacoesExpandidas = new Set(this.transacoesExpandidas);
+    },
+
+    isTransacaoExpandida(transacaoId) {
+      return this.transacoesExpandidas.has(transacaoId);
+    },
+
+
     toggleFiltros() {
       this.mostrarFiltros = !this.mostrarFiltros;
     },
@@ -1666,6 +1767,226 @@ export default {
     margin-top: 16px;
     padding-top: 16px;
     border-top: 1px solid #f3f4f6;
+  }
+}
+
+/* Transações Compactas - Mobile First */
+.desktop-table {
+  display: block;
+}
+
+.mobile-list {
+  display: none;
+}
+
+/* Mobile - Lista Compacta */
+@media (max-width: 767px) {
+  .desktop-table {
+    display: none;
+  }
+  
+  .mobile-list {
+    display: block;
+  }
+
+  .table-row.expanded {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Versão Compacta */
+  .transaction-compact {
+    padding: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+  }
+
+  .transaction-compact:hover {
+    background: #f9fafb;
+  }
+
+  .compact-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-right: 12px;
+  }
+
+  .compact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .compact-description {
+    font-weight: 500;
+    color: #374151;
+    font-size: 16px;
+  }
+
+  .compact-date {
+    font-size: 14px;
+    color: #6b7280;
+  }
+
+  .compact-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .compact-value {
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .compact-value.receita {
+    color: #059669;
+  }
+
+  .compact-value.despesa {
+    color: #dc2626;
+  }
+
+  .compact-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .compact-status.paga {
+    background: rgba(5, 150, 105, 0.1);
+    color: #059669;
+  }
+
+  .compact-status.pendente {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+  }
+
+  .expand-indicator {
+    display: flex;
+    align-items: center;
+    color: #9ca3af;
+  }
+
+  .expand-indicator .chevron {
+    transition: transform 0.3s ease;
+  }
+
+  .expand-indicator .chevron.rotated {
+    transform: rotate(180deg);
+  }
+
+  /* Versão Expandida */
+  .transaction-expanded {
+    border-top: 1px solid #f3f4f6;
+    background: #f9fafb;
+  }
+
+  .expanded-content {
+    padding: 20px;
+  }
+
+  .expanded-row {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .expanded-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .expanded-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .expanded-field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .expanded-value {
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  .expanded-value.receita {
+    color: #059669;
+  }
+
+  .expanded-value.despesa {
+    color: #dc2626;
+  }
+
+  .expanded-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .expanded-actions .action-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    min-height: 44px;
+  }
+
+  .expanded-actions .action-btn.edit {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+  }
+
+  .expanded-actions .action-btn.delete {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+  }
+
+  .expanded-actions .action-btn:hover {
+    transform: scale(1.02);
+  }
+
+  /* Animação de Expansão */
+  .expand-enter-active,
+  .expand-leave-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: top;
+  }
+
+  .expand-enter-from {
+    opacity: 0;
+    transform: scaleY(0.8);
+    max-height: 0;
+  }
+
+  .expand-leave-to {
+    opacity: 0;
+    transform: scaleY(0.8);
+    max-height: 0;
   }
 }
 </style>
