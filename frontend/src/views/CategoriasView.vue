@@ -1252,8 +1252,8 @@ export default {
 /* Grid 2x2 apenas para mobile - após o nome da categoria */
 @media (max-width: 767px) {
   .td:first-child {
-    margin-bottom: 16px;
-    padding-bottom: 16px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
     border-bottom: 1px solid #f3f4f6;
   }
   
@@ -1261,36 +1261,38 @@ export default {
     display: none;
   }
   
-  /* Container para o grid 2x2 - apenas Tipo e Status */
+  /* Layout horizontal compacto para Tipo e Status */
   .td:nth-child(2),
   .td:nth-child(3) {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 8px;
-    width: calc(50% - 4px);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    width: calc(50% - 3px);
     display: inline-block;
     vertical-align: top;
-    height: 70px; /* Altura fixa */
+    height: 50px; /* Altura reduzida */
     box-sizing: border-box;
-    overflow: hidden; /* Esconder conteúdo que exceder */
+    overflow: hidden;
   }
 
-  .td:nth-child(2) { margin-right: 8px; }
+  .td:nth-child(2) { margin-right: 6px; }
   .td:nth-child(3) { margin-left: 0; }
 
-  /* Controlar o texto dentro dos cards */
+  /* Estilo dos labels mais compactos */
   .td:nth-child(2):before,
   .td:nth-child(3):before {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 10px;
+    margin-bottom: 2px;
+    color: #6b7280;
   }
 
-  /* Controlar o conteúdo dos badges */
+  /* Badges menores e mais compactos */
   .tipo-badge,
   .status-badge {
+    font-size: 12px;
+    padding: 4px 8px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1298,12 +1300,32 @@ export default {
     display: block;
   }
   
+  /* Ações em linha única */
   .td:nth-child(4) {
     clear: both;
     width: 100%;
-    margin-top: 16px;
-    padding-top: 16px;
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 1px solid #f3f4f6;
+  }
+
+  /* Botões de ação menores */
+  .action-btn {
+    padding: 8px 12px;
+    min-height: 36px;
+    font-size: 12px;
+  }
+
+  /* Card da categoria mais compacto */
+  .table-row {
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+
+  /* Nome da categoria menor */
+  .categoria-nome {
+    font-size: 15px;
+    line-height: 1.3;
   }
 }
 </style>

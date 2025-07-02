@@ -133,13 +133,84 @@
       <div class="transacoes-card">
         <div class="transacoes-header">
           <h3>Transações ({{ totalTransacoes }} encontradas)</h3>
-          <button class="add-transaction-btn" @click="abrirModalTransacao()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Nova Transação
-          </button>
+          
+          <div class="header-actions">
+            <!-- Ícone de Filtros -->
+            <div class="filter-dropdown-wrapper">
+              <button class="filter-icon-btn" @click="toggleFiltrosTransacao" :class="{ active: mostrarFiltrosTransacao }">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              
+              <!-- Dropdown Content -->
+              <transition name="dropdown-slide">
+                <div v-show="mostrarFiltrosTransacao" class="filter-dropdown-content">
+                  <div class="filter-section">
+                    <span class="filter-section-label">Status:</span>
+                    <div class="filter-buttons">
+                      <button 
+                        class="filter-btn" 
+                        :class="{ active: filtroStatus === null }" 
+                        @click="setFiltroStatus(null)"
+                      >
+                        Todas
+                      </button>
+                      <button 
+                        class="filter-btn" 
+                        :class="{ active: filtroStatus === true }" 
+                        @click="setFiltroStatus(true)"
+                      >
+                        Pagas
+                      </button>
+                      <button 
+                        class="filter-btn" 
+                        :class="{ active: filtroStatus === false }" 
+                        @click="setFiltroStatus(false)"
+                      >
+                        Pendentes
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="filter-section">
+                    <span class="filter-section-label">Tipo:</span>
+                    <div class="filter-buttons">
+                      <button 
+                        class="filter-btn" 
+                        :class="{ active: filtroTipoTransacao === null }" 
+                        @click="setFiltroTipoTransacao(null)"
+                      >
+                        Todos
+                      </button>
+                      <button 
+                        class="filter-btn" 
+                        :class="{ active: filtroTipoTransacao === 'RECEITA' }" 
+                        @click="setFiltroTipoTransacao('RECEITA')"
+                      >
+                        Receitas
+                      </button>
+                      <button 
+                        class="filter-btn" 
+                        :class="{ active: filtroTipoTransacao === 'DESPESA' }" 
+                        @click="setFiltroTipoTransacao('DESPESA')"
+                      >
+                        Despesas
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </transition>
+            </div>
+            
+            <button class="add-transaction-btn" @click="abrirModalTransacao()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Nova Transação
+            </button>
+          </div>
         </div>
 
         <div v-if="transacoes.length" class="transacoes-table">
@@ -154,7 +225,7 @@
               <div class="th">Ações</div>
             </div>
             <div class="table-body">
-              <div v-for="tx in transacoes" :key="tx.id" class="table-row">
+              <div v-for="tx in transacoesFiltradas" :key="tx.id" class="table-row">
                 <div class="td">
                   <div>
                     <div class="tx-descricao">{{ tx.descricao }}</div>
@@ -191,7 +262,7 @@
 
           <!-- Versão Mobile - Lista Compacta Expansível -->
           <div class="mobile-list">
-            <div v-for="tx in transacoes" :key="tx.id" class="table-row" :class="{ expanded: isTransacaoExpandida(tx.id) }">
+            <div v-for="tx in transacoesFiltradas" :key="tx.id" class="table-row" :class="{ expanded: isTransacaoExpandida(tx.id) }">
               <!-- Versão Compacta -->
               <div class="transaction-compact" @click="toggleTransacao(tx.id)">
                 <div class="compact-main">
@@ -357,8 +428,8 @@
               <label>Tipo *</label>
               <select v-model="formTransacao.tipo" required class="form-input">
                 <option value="">Selecione</option>
-                <option value="RECEITA">Receita</option>
-                <option value="DESPESA">Despesa</option>
+                <option value="RECEITA">Receitas</option>
+                <option value="DESPESA">Despesas</option>
               </select>
             </div>
           </div>
@@ -410,12 +481,15 @@ export default {
 
       // Controle dos filtros
       mostrarFiltros: false,
+      mostrarFiltrosTransacao: false, // Controle do dropdown de filtros de transação
       
       // Filtros
       dataInicio: '',
       dataFim: '',
       filtroTipo: '',
       filtroDescricao: '',
+      filtroStatus: null, // null para todas, true para pagas, false para pendentes
+      filtroTipoTransacao: null, // null para todas, 'RECEITA' ou 'DESPESA'
       
       // Estados
       carregando: false,
@@ -427,7 +501,7 @@ export default {
         totalDespesas: 0,
         saldo: 0
       },
-      transacoes: [],
+      transacoes: [], // Todas as transações carregadas
       
       // Paginação
       paginaAtual: 0,
@@ -455,6 +529,27 @@ export default {
   computed: {
     saldoClass() {
       return this.resumo.saldo >= 0 ? 'positivo' : 'negativo';
+    },
+    transacoesFiltradas() {
+      return this.transacoes.filter(tx => {
+        const statusMatch = this.filtroStatus === null || tx.paga === this.filtroStatus;
+        const typeMatch = this.filtroTipoTransacao === null || tx.tipo === this.filtroTipoTransacao;
+        return statusMatch && typeMatch;
+      });
+    }
+  },
+  watch: {
+    // Observar mudanças no tipo de transação para filtrar categorias
+    'formTransacao.tipo'(novoTipo) {
+      if (novoTipo) {
+        this.carregarCategorias(novoTipo);
+        // Limpar categoria selecionada quando mudar o tipo
+        this.formTransacao.categoriaId = '';
+      } else {
+        // Se não há tipo selecionado, carregar todas as categorias
+        this.carregarCategorias();
+        this.formTransacao.categoriaId = '';
+      }
     }
   },
   methods: {
@@ -475,6 +570,20 @@ export default {
 
     toggleFiltros() {
       this.mostrarFiltros = !this.mostrarFiltros;
+    },
+
+    toggleFiltrosTransacao() {
+      this.mostrarFiltrosTransacao = !this.mostrarFiltrosTransacao;
+    },
+
+    setFiltroStatus(status) {
+      this.filtroStatus = status;
+      // Não precisa recarregar do backend, apenas filtrar a lista existente
+    },
+
+    setFiltroTipoTransacao(tipo) {
+      this.filtroTipoTransacao = tipo;
+      // Não precisa recarregar do backend, apenas filtrar a lista existente
     },
 
     async carregarDados() {
@@ -513,8 +622,10 @@ export default {
       if (this.dataInicio) params.dataMin = this.dataInicio;
       if (this.dataFim) params.dataMax = this.dataFim;
       
+      // Não enviar filtro de status ou tipo para o backend, pois a filtragem será local
+
       const data = await apiService.getTransacoes(params);
-      this.transacoes = data.content;
+      this.transacoes = data.content; // Armazenar todas as transações
       this.totalTransacoes = data.totalElements;
       this.totalPaginas = data.totalPages;
     },
@@ -536,6 +647,8 @@ export default {
           observacoes: transacao.observacoes || '',
           paga: transacao.paga
         };
+        // Carregar categorias filtradas pelo tipo da transação
+        this.carregarCategorias(transacao.tipo);
       } else {
         this.formTransacao = {
           categoriaId: '',
@@ -546,6 +659,8 @@ export default {
           observacoes: '',
           paga: true
         };
+        // Carregar todas as categorias para nova transação
+        this.carregarCategorias();
       }
       this.mostrarModal = true;
     },
@@ -617,9 +732,13 @@ export default {
       this.$router.push('/login');
     },
 
-    async carregarCategorias() {
+    async carregarCategorias(tipo = null) {
       try {
-        const data = await apiService.getCategorias({ ativa: true, pageSize: 100 });
+        const params = { ativa: true, pageSize: 100 };
+        if (tipo) {
+          params.tipo = tipo;
+        }
+        const data = await apiService.getCategorias(params);
         this.categoriasDisponiveis = data.content;
       } catch (error) {
         console.error('Erro ao carregar categorias:', error);
@@ -978,8 +1097,8 @@ export default {
 
 .transacoes-header {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
 }
 
@@ -990,12 +1109,49 @@ export default {
   margin: 0;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Ícone de Filtro */
+.filter-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.filter-icon-btn:hover {
+  background: #f1f5f9;
+  border-color: #059669;
+  color: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.15);
+}
+
+.filter-icon-btn.active {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+  border-color: #059669;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+}
+
 .add-transaction-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 8px 16px;
   background: linear-gradient(135deg, #059669 0%, #10b981 100%);
   color: white;
   border: none;
@@ -1003,8 +1159,9 @@ export default {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 16px;
-  min-height: 48px;
+  font-size: 14px;
+  height: 40px;
+  white-space: nowrap;
 }
 
 .add-transaction-btn:hover {
@@ -1012,6 +1169,34 @@ export default {
   box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
+@media (max-width: 767px) {
+  .transacoes-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .transacoes-header h3 {
+    text-align: center;
+  }
+
+  .header-actions {
+    justify-content: center;
+  }
+
+  .add-transaction-btn {
+    padding: 12px 16px;
+    font-size: 16px;
+    height: 48px;
+    flex: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .transacoes-header h3 {
+    font-size: 18px;
+  }
+}
 /* Tabela responsiva - Cards no mobile */
 .transacoes-table {
   border-radius: 8px;
@@ -1566,128 +1751,33 @@ export default {
   }
   
   .transacoes-header {
-    flex-direction: row;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
     align-items: center;
-    margin-bottom: 20px;
+    gap: 16px;
   }
-  
+
   .transacoes-header h3 {
-    font-size: 18px;
+    grid-column: 1 / 2;
   }
-  
-  .add-transaction-btn {
-    width: auto;
-    font-size: 14px;
-    padding: 8px 16px;
-    min-height: auto;
-  }
-  
-  /* Tabela desktop */
-  .table-header {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr 100px;
-    background: #f9fafb;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  
-  .th {
-    padding: 12px 16px;
-    font-weight: 600;
-    color: #374151;
-    font-size: 14px;
-    display: block;
-  }
-  
-  .table-body {
-    max-height: 400px;
-    overflow-y: auto;
-    gap: 0;
-  }
-  
-  .table-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr 100px;
-    border-bottom: 1px solid #f3f4f6;
-    border-radius: 0;
-    padding: 0;
-    margin-bottom: 0;
-    box-shadow: none;
-    background: transparent;
-  }
-  
-  .table-row:hover {
-    background: #f9fafb;
-    box-shadow: none;
-  }
-  
-  .td {
-    padding: 12px 16px;
-    color: #6b7280;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    margin-bottom: 0;
-    border-top: none;
-  }
-  
-  .td:before {
-    display: none;
-  }
-  
-  .td:nth-child(6) {
-    margin-top: 0;
-    padding-top: 12px;
-    border-top: none;
-  }
-  
-  .action-btn {
-    flex: none;
-    padding: 6px;
-    margin-right: 4px;
-    min-height: auto;
-  }
-  
-  .action-btn:after {
-    display: none;
-  }
-  
-  .acoes-futuras {
+
+  .filter-group-wrapper {
+    grid-column: 2 / 3;
     flex-direction: row;
-    gap: 16px;
-  }
-  
-  .acao-btn {
-    justify-content: flex-start;
-    min-height: auto;
-    padding: 12px 20px;
-  }
-  
-  .modal-overlay {
-    align-items: center;
-    padding: 20px;
-  }
-  
-  .modal-content {
-    border-radius: 12px;
-    max-width: 600px;
-    animation: none;
-  }
-  
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  
-  .modal-actions {
-    flex-direction: row;
+    gap: 8px;
     justify-content: flex-end;
+    width: auto;
   }
-  
-  .btn-cancel, .btn-save {
-    min-height: auto;
-    font-size: 14px;
+
+  .transaction-filters {
+    margin-top: 0;
+    justify-content: flex-start;
+    width: auto;
+  }
+
+  .add-transaction-btn {
+    grid-column: 3 / 4;
+    width: auto;
   }
 }
 
@@ -1699,6 +1789,76 @@ export default {
   
   .resumo-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Tabela Desktop - Estilo Original */
+  .table-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+    gap: 16px;
+    padding: 16px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+  }
+
+  .th {
+    text-align: left;
+  }
+
+  .table-body {
+    display: block;
+  }
+
+  .table-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+    gap: 16px;
+    padding: 16px;
+    border-bottom: 1px solid #f3f4f6;
+    align-items: center;
+    background: white;
+    border-radius: 0;
+    box-shadow: none;
+    margin-bottom: 0;
+  }
+
+  .table-row:hover {
+    background: #f9fafb;
+    box-shadow: none;
+  }
+
+  .td {
+    display: block;
+    margin-bottom: 0;
+    position: static;
+  }
+
+  .td:before {
+    display: none;
+  }
+
+  .td:nth-child(6) {
+    display: flex;
+    gap: 8px;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    justify-content: flex-start;
+  }
+
+  .action-btn {
+    flex: none;
+    padding: 8px 12px;
+    min-height: auto;
+    font-size: 12px;
+  }
+
+  .action-btn.edit:after,
+  .action-btn.delete:after {
+    content: none;
   }
 }
 
@@ -1989,4 +2149,94 @@ export default {
     max-height: 0;
   }
 }
+
+/* Dropdown de Filtros de Transação */
+.filter-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.filter-dropdown-content {
+  position: absolute;
+  top: 100%;
+  right: 100;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 280px;
+  padding: 16px;
+  margin-top: 4px;
+}
+
+.filter-section {
+  margin-bottom: 16px;
+}
+
+.filter-section:last-child {
+  margin-bottom: 0;
+}
+
+.filter-section-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+  flex: 1;
+  min-width: 70px;
+  text-align: center;
+}
+
+.filter-btn:hover {
+  background: #f1f5f9;
+  color: #374151;
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+  border-color: #059669;
+}
+
+/* Animação do dropdown */
+.dropdown-slide-enter-active,
+.dropdown-slide-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top right;
+}
+
+.dropdown-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+.dropdown-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
 </style>
+
+

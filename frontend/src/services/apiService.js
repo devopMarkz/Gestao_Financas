@@ -23,6 +23,7 @@ class ApiService {
 
     const response = await fetch(url, config)
 
+    // === Tratamento de erro 401 ===
     if (response.status === 401) {
       const errorMsg = "Token expirado"
       logErrorToLocalStorage(errorMsg)
@@ -31,6 +32,17 @@ class ApiService {
       throw new Error(errorMsg)
     }
 
+    // === Tratamento de erro 403 ===
+    if (response.status === 403) {
+      const errorMsg = "Você não tem permissão para acessar este recurso"
+      logErrorToLocalStorage(errorMsg)
+      alert(errorMsg)
+      const error = new Error(errorMsg)
+      error.status = 403
+      throw error
+    }
+
+    // === Tratamento genérico de erros !== 200/201/204 ===
     if (!response.ok) {
       let errorMessage = `Erro na API: ${response.status}`
 
@@ -49,7 +61,7 @@ class ApiService {
           }
         }
       } catch {
-        // OI
+        // Ignora erros ao ler a resposta
       }
 
       logErrorToLocalStorage(errorMessage)
@@ -59,10 +71,12 @@ class ApiService {
       throw error
     }
 
+    // === Sucesso com status 204 ou 201 ===
     if (response.status === 204 || response.status === 201) {
       return true
     }
 
+    // === Tenta retornar o JSON da resposta ===
     try {
       const text = await response.text()
       if (!text || text.trim() === "") {
