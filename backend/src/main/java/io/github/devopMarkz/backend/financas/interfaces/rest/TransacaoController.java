@@ -7,6 +7,7 @@ import io.github.devopMarkz.backend.financas.domain.model.Tipo;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -26,6 +27,7 @@ public class TransacaoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<TransacaoResponseDTO> criar(@Valid @RequestBody TransacaoRequestDTO dto) {
         TransacaoResponseDTO resposta = service.salvar(dto);
         URI location = generateUri(resposta.getId());
@@ -33,6 +35,7 @@ public class TransacaoController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<Page<TransacaoResponseDTO>> listarComFiltro(
             @RequestParam(required = false) String descricao,
             @RequestParam(required = false) Long categoriaId,
@@ -51,18 +54,21 @@ public class TransacaoController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<TransacaoResponseDTO> buscarPorId(@PathVariable Long id) {
         TransacaoResponseDTO dto = service.findById(id);
         return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<TransacaoResponseDTO> atualizar(@PathVariable Long id, @Valid @RequestBody TransacaoRequestDTO dto) {
         TransacaoResponseDTO atualizado = service.atualizar(id, dto);
         return ResponseEntity.ok(atualizado);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         service.deletar(id);
         return ResponseEntity.noContent().build();

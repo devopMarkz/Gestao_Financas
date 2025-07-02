@@ -2,6 +2,7 @@ package io.github.devopMarkz.backend.financas.domain.repository;
 
 import io.github.devopMarkz.backend.financas.domain.model.Tipo;
 import io.github.devopMarkz.backend.financas.domain.model.Transacao;
+import io.github.devopMarkz.backend.usuario.domain.model.Usuario;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -36,5 +37,16 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
             @Param("dataMax") LocalDate dataMax,
             Pageable pageable
     );
+
+    @Query(
+            "SELECT COALESCE(SUM(t.valor), 0) FROM Transacao t " +
+            "WHERE t.usuario.id = :usuarioId " +
+                    "AND t.tipo = :tipo " +
+                    "AND t.dataTransacao BETWEEN :inicio AND :fim"
+    )
+    BigDecimal somarPorTipoEPeriodo(@Param("tipo") Tipo tipo,
+                                    @Param("inicio") LocalDate dataInicio,
+                                    @Param("fim") LocalDate dataFim,
+                                    @Param("usuarioId") Long usuarioId);
 
 }
