@@ -1,6 +1,5 @@
 <template>
   <div class="categorias-wrapper">
-    <!-- Background pattern -->
     <div class="background-pattern"></div>
     
     <!-- Header -->
@@ -216,28 +215,22 @@ export default {
   name: 'CategoriasView',
   data() {
     return {
-      // Controle dos filtros
       mostrarFiltros: false,
       
-      // Filtros
       filtroNome: '',
       filtroTipo: '',
-      filtroAtiva: 'true', // Por padrão mostrar apenas ativas
+      filtroAtiva: 'true',
       
-      // Estados
       carregando: false,
       erro: '',
       
-      // Dados
       categorias: [],
       
-      // Paginação
       paginaAtual: 0,
       tamanhoPagina: 20,
       totalCategorias: 0,
       totalPaginas: 0,
       
-      // Modal
       mostrarModal: false,
       categoriaEditando: null,
       salvandoCategoria: false,
@@ -262,7 +255,6 @@ export default {
           pageSize: this.tamanhoPagina
         };
         
-        // Corrigir o nome do parâmetro para 'nomeCategoria'
         if (this.filtroNome) params.nomeCategoria = this.filtroNome;
         if (this.filtroTipo) params.tipo = this.filtroTipo;
         if (this.filtroAtiva !== '') params.ativa = this.filtroAtiva;
@@ -332,7 +324,6 @@ export default {
         } catch (error) {
           console.error('Erro ao excluir categoria:', error);
           
-          // Usar a mensagem do backend se disponível, senão usar mensagem padrão
           if (error.status === 409) {
             this.erro = error.message || `Não é possível excluir a categoria "${categoria.nome}" pois ela possui transações vinculadas.`;
           } else if (error.status === 400) {
@@ -356,7 +347,6 @@ export default {
     }
   },
   
-  // Verificar autenticação ao montar o componente
   beforeMount() {
     if (!authService.isAuthenticated()) {
       this.$router.push('/login');
