@@ -5,14 +5,31 @@
     <div class="login-container">
       <div class="login-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+          <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
+      
       <h2>Controle Financeiro</h2>
-      <p class="subtitle">Acesse sua conta para gerenciar suas finanças</p>
+      <p class="subtitle">Crie sua conta para gerenciar suas finanças</p>
+      
+      <form @submit.prevent="fetchCadastro" class="login-form">
+        <div class="input-group">
+          <label for="nome">Nome</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <input 
+              id="nome"
+              v-model="input_nome" 
+              type="text" 
+              placeholder="Seu nome completo"
+              required 
+            />
+          </div>
+        </div>
 
-      <form @submit.prevent="fazerLogin" class="login-form">
         <div class="input-group">
           <label for="email">E-mail</label>
           <div class="input-wrapper">
@@ -22,9 +39,9 @@
             </svg>
             <input 
               id="email"
-              v-model="email" 
+              v-model="input_email" 
               type="email" 
-              placeholder="seu@email.com" 
+              placeholder="seu@email.com"
               required 
             />
           </div>
@@ -40,14 +57,14 @@
             </svg>
             <input 
               id="senha"
-              v-model="senha" 
+              v-model="input_senha" 
               :type="mostrarSenha ? 'text' : 'password'" 
-              placeholder="••••••••" 
+              placeholder="••••••••"
               required 
             />
             <button 
               type="button" 
-              class="toggle-password" 
+              class="toggle-password"
               @click="mostrarSenha = !mostrarSenha"
             >
               <svg v-if="mostrarSenha" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -64,22 +81,21 @@
 
         <div class="remember-forgot">
           <label class="remember-me">
-            <input type="checkbox" v-model="lembrarMe">
+            <input type="checkbox" v-model="aceitarTermos" required>
             <span class="checkmark"></span>
-            Lembrar-me
+            Aceito os termos de uso
           </label>
-          <a href="#" @click.prevent class="forgot-link">Esqueceu a senha?</a>
         </div>
 
-        <button type="submit" class="login-button" :disabled="carregando">
+        <button type="submit" class="login-button" :disabled="carregando || !aceitarTermos">
           <span v-if="carregando" class="loading-spinner"></span>
           <span v-if="!carregando">
-            Entrar
+            Criar conta
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H15M10 17L15 12L10 7M21 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </span>
-          <span v-else>Entrando...</span>
+          <span v-else>Criando conta...</span>
         </button>
       </form>
 
@@ -92,56 +108,77 @@
         {{ erro }}
       </div>
 
+      <div v-if="sucesso" class="sucesso">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="22,4 12,14.01 9,11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        {{ sucesso }}
+      </div>
+
       <div class="register-link">
-        <span>Não tem uma conta? </span>
-        <router-link to="/conta">Criar conta</router-link>
+        <span>Já tem uma conta? </span>
+        <router-link to="/login">Fazer login</router-link>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import authService from '../services/authService'
+import apiRoutes from '@/services/apiRoutes'
 
 export default {
-  name: 'LoginView',
+  name: 'CadastroView',
   data() {
     return {
-      email: '',
-      senha: '',
+      input_nome: '',
+      input_email: '',
+      input_senha: '',
       erro: '',
+      sucesso: '',
       mostrarSenha: false,
       carregando: false,
-      lembrarMe: false
-    }
-  },
-  
-  // Verificar se já está logado
-  beforeMount() {
-    if (authService.isAuthenticated()) {
-      this.$router.push('/dashboard')
+      aceitarTermos: false
     }
   },
   
   methods: {
-    async fazerLogin() {
+    async fetchCadastro() {
       this.carregando = true
       this.erro = ''
+      this.sucesso = ''
       
       try {
-        await authService.login(this.email, this.senha)
-        
-        // Sucesso no login
-        console.log('Login realizado com sucesso!')
-        this.$router.push('/dashboard')
-        
+        const response = await fetch(apiRoutes.usuarios, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            nome: this.input_nome,
+            email: this.input_email,
+            senha: this.input_senha
+          })
+        })
+
+        if (response.ok) {
+          this.sucesso = 'Conta criada com sucesso!'
+          this.input_nome = ''
+          this.input_email = ''
+          this.input_senha = ''
+          this.aceitarTermos = false
+          
+          setTimeout(() => {
+            this.$router.push('/login')
+          }, 2000)
+        } else {
+          const errorData = await response.json()
+          this.erro = errorData.message || 'Erro ao criar conta. Tente novamente.'
+        }
       } catch (error) {
-        console.error('Erro no login:', error)
+        console.error('Erro no cadastro:', error)
         
-        // Tratamento de diferentes tipos de erro
-        if (error.message.includes('401') || error.message.includes('Credenciais')) {
-          this.erro = 'E-mail ou senha inválidos'
-        } else if (error.message.includes('fetch')) {
+        if (error.message.includes('fetch')) {
           this.erro = 'Erro de conexão. Verifique sua internet.'
         } else {
           this.erro = 'Erro interno. Tente novamente em alguns instantes.'
@@ -308,18 +345,6 @@ export default {
   accent-color: #059669;
 }
 
-.forgot-link {
-  color: #059669;
-  font-size: 14px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.forgot-link:hover {
-  color: #047857;
-}
-
 .login-button {
   width: 100%;
   padding: 12px 16px;
@@ -367,6 +392,19 @@ export default {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.2);
   color: #dc2626;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sucesso {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  color: #16a34a;
   padding: 12px;
   border-radius: 8px;
   font-size: 14px;

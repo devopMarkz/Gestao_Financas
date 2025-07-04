@@ -30,6 +30,11 @@ const routes = [
   {
     path: '*',
     redirect: '/login'
+  },
+  {
+    name: 'CriarContaView',
+    path: '/conta',
+    component: () => import('@/views/CriarContaView.vue')
   }
 ]
 

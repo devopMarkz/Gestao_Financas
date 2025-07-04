@@ -4,6 +4,8 @@ export default {
   // Auth
   login: `${BASE_URL}/auth/login`,
 
+  usuarios: `${BASE_URL}/usuarios`,
+
   // Dashboard
   resumo: `${BASE_URL}/dashboard/resumo`,
 
