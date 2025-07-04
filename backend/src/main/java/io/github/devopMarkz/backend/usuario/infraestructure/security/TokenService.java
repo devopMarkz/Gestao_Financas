@@ -40,7 +40,7 @@ public class TokenService {
                     .withIssuer("biblioteca-api")
                     .withClaim("roles", List.of(usuario.getPerfil().name()))
                     .withIssuedAt(Instant.now())
-                    .withExpiresAt(Instant.now().plus(2, ChronoUnit.HOURS))
+                    .withExpiresAt(Instant.now().plus(6, ChronoUnit.HOURS))
                     .sign(algorithm);
         } catch (JWTCreationException e){
             throw new TokenException("Erro ao gerar token!");
