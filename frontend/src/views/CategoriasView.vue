@@ -371,7 +371,6 @@ export default {
 </script>
 
 <style scoped>
-/* Mobile-First Approach - Estilos base para mobile */
 * {
   box-sizing: border-box;
 }
@@ -468,7 +467,6 @@ export default {
   position: relative;
 }
 
-/* Header Section com Título e Botão de Filtros */
 .categorias-header-section {
   display: flex;
   flex-direction: column;
@@ -484,7 +482,6 @@ export default {
   text-align: center;
 }
 
-/* Botão de Toggle dos Filtros */
 .filter-toggle-btn {
   display: flex;
   align-items: center;
@@ -525,7 +522,6 @@ export default {
   transform: rotate(180deg);
 }
 
-/* Animações dos Filtros */
 .filter-slide-enter-active,
 .filter-slide-leave-active {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -542,7 +538,6 @@ export default {
   transform: translateY(-20px) scaleY(0.8);
 }
 
-/* Filtros - Mobile First */
 .filtros-card {
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(226, 232, 240, 0.8);
@@ -638,7 +633,6 @@ export default {
   100% { transform: rotate(360deg); }
 }
 
-/* Categorias - Mobile First */
 .categorias-card {
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(226, 232, 240, 0.8);
@@ -684,7 +678,6 @@ export default {
   box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
-/* Tabela responsiva - Cards no mobile */
 .categorias-table {
   border-radius: 8px;
   overflow: hidden;
@@ -723,7 +716,6 @@ export default {
   margin-bottom: 0;
 }
 
-/* Labels para mobile */
 .td:before {
   content: attr(data-label);
   font-weight: 600;
@@ -839,7 +831,6 @@ export default {
   transform: scale(1.02);
 }
 
-/* Empty State */
 .empty-state {
   text-align: center;
   padding: 48px 24px;
@@ -862,7 +853,6 @@ export default {
   font-size: 14px;
 }
 
-/* Paginação */
 .paginacao {
   display: flex;
   justify-content: center;
@@ -899,7 +889,6 @@ export default {
   text-align: center;
 }
 
-/* Erro Alert */
 .erro-alert {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.2);
@@ -930,7 +919,6 @@ export default {
   justify-content: center;
 }
 
-/* Modal Styles - Mobile First */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1090,7 +1078,6 @@ export default {
   transform: none;
 }
 
-/* Tablet Styles */
 @media (min-width: 768px) {
   .header-content {
     padding: 16px 24px;
@@ -1160,7 +1147,6 @@ export default {
     min-height: auto;
   }
   
-  /* Tabela desktop */
   .table-header {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 120px;
@@ -1249,7 +1235,6 @@ export default {
   }
 }
 
-/* Grid 2x2 apenas para mobile - após o nome da categoria */
 @media (max-width: 767px) {
   .td:first-child {
     margin-bottom: 12px;
@@ -1261,7 +1246,6 @@ export default {
     display: none;
   }
   
-  /* Layout horizontal compacto para Tipo e Status */
   .td:nth-child(2),
   .td:nth-child(3) {
     background: #f8fafc;
@@ -1272,7 +1256,7 @@ export default {
     width: calc(50% - 3px);
     display: inline-block;
     vertical-align: top;
-    height: 50px; /* Altura reduzida */
+    height: 50px; 
     box-sizing: border-box;
     overflow: hidden;
   }
@@ -1280,7 +1264,6 @@ export default {
   .td:nth-child(2) { margin-right: 6px; }
   .td:nth-child(3) { margin-left: 0; }
 
-  /* Estilo dos labels mais compactos */
   .td:nth-child(2):before,
   .td:nth-child(3):before {
     font-size: 10px;
@@ -1288,7 +1271,6 @@ export default {
     color: #6b7280;
   }
 
-  /* Badges menores e mais compactos */
   .tipo-badge,
   .status-badge {
     font-size: 12px;
@@ -1300,7 +1282,6 @@ export default {
     display: block;
   }
   
-  /* Ações em linha única */
   .td:nth-child(4) {
     clear: both;
     width: 100%;
@@ -1309,20 +1290,17 @@ export default {
     border-top: 1px solid #f3f4f6;
   }
 
-  /* Botões de ação menores */
   .action-btn {
     padding: 8px 12px;
     min-height: 36px;
     font-size: 12px;
   }
 
-  /* Card da categoria mais compacto */
   .table-row {
     padding: 12px;
     margin-bottom: 8px;
   }
 
-  /* Nome da categoria menor */
   .categoria-nome {
     font-size: 15px;
     line-height: 1.3;

@@ -1,6 +1,5 @@
 <template>
   <div class="dashboard-wrapper">
-    <!-- Background pattern -->
     <div class="background-pattern"></div>
     
     <!-- Header -->
@@ -143,7 +142,6 @@
                 </svg>
               </button>
               
-              <!-- Dropdown Content -->
               <transition name="dropdown-slide">
                 <div v-show="mostrarFiltrosTransacao" class="filter-dropdown-content">
                   <div class="filter-section">
@@ -263,7 +261,6 @@
           <!-- Versão Mobile - Lista Compacta Expansível -->
           <div class="mobile-list">
             <div v-for="tx in transacoesFiltradas" :key="tx.id" class="table-row" :class="{ expanded: isTransacaoExpandida(tx.id) }">
-              <!-- Versão Compacta -->
               <div class="transaction-compact" @click="toggleTransacao(tx.id)">
                 <div class="compact-main">
                   <div class="compact-info">
@@ -374,7 +371,6 @@
         </div>
       </div>
 
-      <!-- Ações Futuras -->
       <div class="acoes-futuras">
         <button class="acao-btn" @click="irParaCategorias">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -476,41 +472,34 @@ export default {
   name: 'DashboardView',
   data() {
     return {
-      // Controle das transações expandidas (apenas mobile)
       transacoesExpandidas: new Set(),
 
-      // Controle dos filtros
       mostrarFiltros: false,
-      mostrarFiltrosTransacao: false, // Controle do dropdown de filtros de transação
-      
-      // Filtros
+      mostrarFiltrosTransacao: false, 
+
       dataInicio: '',
       dataFim: '',
       filtroTipo: '',
       filtroDescricao: '',
-      filtroStatus: null, // null para todas, true para pagas, false para pendentes
-      filtroTipoTransacao: null, // null para todas, 'RECEITA' ou 'DESPESA'
+      filtroStatus: null, 
+      filtroTipoTransacao: null,
       
-      // Estados
       carregando: false,
       erro: '',
       
-      // Dados
       resumo: {
         totalReceitas: 0,
         totalDespesas: 0,
         saldo: 0
       },
-      transacoes: [], // Todas as transações carregadas
+      transacoes: [], 
       
-      // Paginação
       paginaAtual: 0,
       tamanhoPagina: 10,
       totalTransacoes: 0,
       totalPaginas: 0,
       
       
-      // Modal
       mostrarModal: false,
       transacaoEditando: null,
       salvandoTransacao: false,
@@ -539,14 +528,11 @@ export default {
     }
   },
   watch: {
-    // Observar mudanças no tipo de transação para filtrar categorias
     'formTransacao.tipo'(novoTipo) {
       if (novoTipo) {
         this.carregarCategorias(novoTipo);
-        // Limpar categoria selecionada quando mudar o tipo
         this.formTransacao.categoriaId = '';
       } else {
-        // Se não há tipo selecionado, carregar todas as categorias
         this.carregarCategorias();
         this.formTransacao.categoriaId = '';
       }
@@ -559,7 +545,6 @@ export default {
       } else {
         this.transacoesExpandidas.add(transacaoId);
       }
-      // Forçar reatividade
       this.transacoesExpandidas = new Set(this.transacoesExpandidas);
     },
 
@@ -578,12 +563,10 @@ export default {
 
     setFiltroStatus(status) {
       this.filtroStatus = status;
-      // Não precisa recarregar do backend, apenas filtrar a lista existente
     },
 
     setFiltroTipoTransacao(tipo) {
       this.filtroTipoTransacao = tipo;
-      // Não precisa recarregar do backend, apenas filtrar a lista existente
     },
 
     async carregarDados() {
@@ -622,10 +605,9 @@ export default {
       if (this.dataInicio) params.dataMin = this.dataInicio;
       if (this.dataFim) params.dataMax = this.dataFim;
       
-      // Não enviar filtro de status ou tipo para o backend, pois a filtragem será local
 
       const data = await apiService.getTransacoes(params);
-      this.transacoes = data.content; // Armazenar todas as transações
+      this.transacoes = data.content; 
       this.totalTransacoes = data.totalElements;
       this.totalPaginas = data.totalPages;
     },
@@ -647,7 +629,6 @@ export default {
           observacoes: transacao.observacoes || '',
           paga: transacao.paga
         };
-        // Carregar categorias filtradas pelo tipo da transação
         this.carregarCategorias(transacao.tipo);
       } else {
         this.formTransacao = {
@@ -659,7 +640,6 @@ export default {
           observacoes: '',
           paga: true
         };
-        // Carregar todas as categorias para nova transação
         this.carregarCategorias();
       }
       this.mostrarModal = true;
@@ -750,7 +730,6 @@ export default {
     },
   },
   
-  // Verificar autenticação ao montar o componente
   beforeMount() {
     if (!authService.isAuthenticated()) {
       this.$router.push('/login');
@@ -767,7 +746,6 @@ export default {
 </script>
 
 <style scoped>
-/* Mobile-First Approach - Estilos base para mobile */
 * {
   box-sizing: border-box;
 }
@@ -845,7 +823,6 @@ export default {
   position: relative;
 }
 
-/* Header Section com Título e Botão de Filtros */
 .dashboard-header-section {
   display: flex;
   flex-direction: column;
@@ -861,7 +838,6 @@ export default {
   text-align: center;
 }
 
-/* Botão de Toggle dos Filtros */
 .filter-toggle-btn {
   display: flex;
   align-items: center;
@@ -902,7 +878,6 @@ export default {
   transform: rotate(180deg);
 }
 
-/* Animações dos Filtros */
 .filter-slide-enter-active,
 .filter-slide-leave-active {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -919,7 +894,6 @@ export default {
   transform: translateY(-20px) scaleY(0.8);
 }
 
-/* Filtros - Mobile First */
 .filtros-card {
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(226, 232, 240, 0.8);
@@ -1115,7 +1089,6 @@ export default {
   gap: 12px;
 }
 
-/* Ícone de Filtro */
 .filter-icon-btn {
   display: flex;
   align-items: center;
@@ -1236,7 +1209,6 @@ export default {
   margin-bottom: 0;
 }
 
-/* Labels para mobile */
 .td:before {
   content: attr(data-label);
   font-weight: 600;
@@ -1370,7 +1342,6 @@ export default {
   transform: scale(1.02);
 }
 
-/* Empty State */
 .empty-state {
   text-align: center;
   padding: 48px 24px;
@@ -1393,7 +1364,6 @@ export default {
   font-size: 14px;
 }
 
-/* Paginação */
 .paginacao {
   display: flex;
   justify-content: center;
@@ -1430,7 +1400,6 @@ export default {
   text-align: center;
 }
 
-/* Ações Futuras */
 .acoes-futuras {
   display: flex;
   flex-direction: column;
@@ -1476,7 +1445,6 @@ export default {
   background: #e5e7eb;
 }
 
-/* Erro Alert */
 .erro-alert {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.2);
@@ -1507,7 +1475,6 @@ export default {
   justify-content: center;
 }
 
-/* Modal Styles - Mobile First */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1678,7 +1645,6 @@ export default {
   transform: none;
 }
 
-/* Tablet Styles */
 @media (min-width: 768px) {
   .header-content {
     padding: 16px 24px;
@@ -1781,7 +1747,6 @@ export default {
   }
 }
 
-/* Desktop Styles */
 @media (min-width: 1024px) {
   .filtros-content {
     grid-template-columns: repeat(5, 1fr);
@@ -1791,7 +1756,6 @@ export default {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  /* Tabela Desktop - Estilo Original */
   .table-header {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
@@ -1862,7 +1826,6 @@ export default {
   }
 }
 
-/* Grid 2x2 apenas para mobile - após a descrição */
 @media (max-width: 767px) {
   .td:first-child {
     margin-bottom: 16px;
@@ -1874,7 +1837,6 @@ export default {
     display: none;
   }
   
-  /* Container para o grid 2x2 */
   .td:nth-child(2),
   .td:nth-child(3),
   .td:nth-child(4),
@@ -1887,12 +1849,11 @@ export default {
     width: calc(50% - 4px);
     display: inline-block;
     vertical-align: top;
-    height: 80px; /* Altura fixa em vez de min-height */
+    height: 80px;
     box-sizing: border-box;
-    overflow: hidden; /* Esconder conteúdo que exceder */
+    overflow: hidden;
   }
 
-  /* Controlar o texto dentro dos cards */
   .td:nth-child(2) .td:before,
   .td:nth-child(3) .td:before,
   .td:nth-child(4) .td:before,
@@ -1902,7 +1863,6 @@ export default {
     text-overflow: ellipsis;
   }
 
-  /* Controlar o conteúdo dos badges e texto */
   .categoria-badge,
   .status-badge {
     white-space: nowrap;
@@ -1913,7 +1873,6 @@ export default {
     font-size: 12px;
   }
 
-  /* Controlar texto de valor e data */
   .td:nth-child(2),
   .td:nth-child(3) {
     white-space: nowrap;
@@ -1930,7 +1889,6 @@ export default {
   }
 }
 
-/* Transações Compactas - Mobile First */
 .desktop-table {
   display: block;
 }
@@ -1939,7 +1897,6 @@ export default {
   display: none;
 }
 
-/* Mobile - Lista Compacta */
 @media (max-width: 767px) {
   .desktop-table {
     display: none;
@@ -1953,7 +1910,6 @@ export default {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
-  /* Versão Compacta */
   .transaction-compact {
     padding: 16px;
     cursor: pointer;
@@ -2044,7 +2000,6 @@ export default {
     transform: rotate(180deg);
   }
 
-  /* Versão Expandida */
   .transaction-expanded {
     border-top: 1px solid #f3f4f6;
     background: #f9fafb;
@@ -2130,7 +2085,6 @@ export default {
     transform: scale(1.02);
   }
 
-  /* Animação de Expansão */
   .expand-enter-active,
   .expand-leave-active {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2150,7 +2104,6 @@ export default {
   }
 }
 
-/* Dropdown de Filtros de Transação */
 .filter-dropdown-wrapper {
   position: relative;
   display: inline-block;
@@ -2220,7 +2173,6 @@ export default {
   border-color: #059669;
 }
 
-/* Animação do dropdown */
 .dropdown-slide-enter-active,
 .dropdown-slide-leave-active {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
