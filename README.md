@@ -147,10 +147,10 @@ O Backend é desenvolvido em Spring Boot e requer Java 17. Certifique-se de ter 
 Para acessar os endpoints da API, especialmente para testes com ferramentas como Postman ou Insomnia, siga o fluxo de autenticação:
 
 1. **Criar um Usuário:**
-   Primeiro, crie um novo usuário enviando uma requisição `POST` para a rota de criação de usuários (ex: `/api/usuarios`). Certifique-se de incluir os dados necessários (nome, email, senha, etc.) no corpo da requisição.
+   Primeiro, crie um novo usuário enviando uma requisição `POST` para a rota de criação de usuários (`/usuarios`). Certifique-se de incluir os dados necessários (nome, email, senha, etc.) no corpo da requisição.
 
 2. **Realizar Login e Obter Token:**
-   Em seguida, faça uma requisição `POST` para a rota de login (ex: `/api/auth/login`), fornecendo o email e a senha do usuário criado. A resposta incluirá um `access_token`.
+   Em seguida, faça uma requisição `POST` para a rota de login (ex: `/auth/login`), fornecendo o email e a senha do usuário criado. A resposta incluirá um `access_token`.
 
 3. **Autorizar Requisições:**
    Para todas as requisições subsequentes aos endpoints protegidos, você deve incluir o `access_token` no cabeçalho `Authorization` no formato `Bearer <seu_access_token>`.
