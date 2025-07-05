@@ -26,13 +26,21 @@ public class ContaRecorrenteRequestDTO {
     @NotNull(message = "O tipo é obrigatório.")
     private Tipo tipo;
 
-    @NotNull(message = "O status de ativação é obrigatório.")
-    private Boolean ativa;
+    private Boolean ativa = true;
 
     @Size(max = 1000, message = "As observações devem ter no máximo 1000 caracteres.")
     private String observacoes;
 
     public ContaRecorrenteRequestDTO() {
+    }
+
+    public ContaRecorrenteRequestDTO(Long categoriaId, String descricao, BigDecimal valor, Short diaVencimento, Tipo tipo, String observacoes) {
+        this.categoriaId = categoriaId;
+        this.descricao = descricao;
+        this.valor = valor;
+        this.diaVencimento = diaVencimento;
+        this.tipo = tipo;
+        this.observacoes = observacoes;
     }
 
     public ContaRecorrenteRequestDTO(Long categoriaId, String descricao, BigDecimal valor, Short diaVencimento, Tipo tipo, Boolean ativa, String observacoes) {

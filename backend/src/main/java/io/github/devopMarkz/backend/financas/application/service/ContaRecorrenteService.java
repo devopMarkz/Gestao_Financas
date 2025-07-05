@@ -19,6 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
+/**
+ * Serviço responsável pela lógica de negócio relacionada às Contas Recorrentes.
+ *
+ * Gerencia operações de criação, busca, atualização, exclusão e criação de transações a partir de contas recorrentes,
+ * garantindo que as operações sejam feitas somente pelo usuário autenticado e que categorias relacionadas existam.
+ *
+ * @author devopMarkz
+ */
 @Service
 public class ContaRecorrenteService {
 
@@ -34,6 +42,14 @@ public class ContaRecorrenteService {
         this.transacaoRepository = transacaoRepository;
     }
 
+    /**
+     * Salva uma nova conta recorrente associada ao usuário autenticado,
+     * garantindo que a categoria exista.
+     *
+     * @param dto Dados da conta recorrente para criação
+     * @return DTO com dados da conta criada
+     * @throws EntidadeInexistenteException se a categoria informada não existir
+     */
     @Transactional
     public ContaRecorrenteResponseDTO salvar(ContaRecorrenteRequestDTO dto) {
         Usuario usuario = UsuarioAutenticadoService.obterUsuario();
@@ -47,6 +63,18 @@ public class ContaRecorrenteService {
         return toResponseDTO(conta);
     }
 
+    /**
+     * Busca contas recorrentes filtradas pelos parâmetros fornecidos,
+     * limitando o acesso às contas do usuário autenticado.
+     *
+     * @param descricao filtro opcional pela descrição da conta
+     * @param categoriaId filtro opcional pela categoria
+     * @param tipo filtro opcional pelo tipo da conta
+     * @param ativa filtro opcional pelo status ativo/inativo
+     * @param diaVencimento filtro opcional pelo dia de vencimento
+     * @param pageable objeto de paginação e ordenação
+     * @return página de contas recorrentes filtradas
+     */
     @Transactional(readOnly = true)
     public Page<ContaRecorrenteResponseDTO> buscarContasFiltradas(
             String descricao,
@@ -65,6 +93,14 @@ public class ContaRecorrenteService {
         return contas.map(this::converterParaResponseDTO);
     }
 
+    /**
+     * Busca uma conta recorrente pelo seu ID,
+     * garantindo que pertença ao usuário autenticado.
+     *
+     * @param id identificador da conta recorrente
+     * @return DTO da conta encontrada
+     * @throws EntidadeInexistenteException se a conta não existir ou não pertencer ao usuário
+     */
     @Transactional(readOnly = true)
     public ContaRecorrenteResponseDTO buscarPorId(Long id) {
         Usuario usuario = UsuarioAutenticadoService.obterUsuario();
@@ -75,6 +111,15 @@ public class ContaRecorrenteService {
         return toResponseDTO(conta);
     }
 
+    /**
+     * Atualiza os dados de uma conta recorrente existente,
+     * assegurando que a conta e a categoria existam e pertençam ao usuário.
+     *
+     * @param id identificador da conta a ser atualizada
+     * @param dto dados para atualização
+     * @return DTO da conta atualizada
+     * @throws EntidadeInexistenteException se a conta ou categoria não existirem
+     */
     @Transactional
     public ContaRecorrenteResponseDTO atualizar(Long id, ContaRecorrenteRequestDTO dto) {
         Usuario usuario = UsuarioAutenticadoService.obterUsuario();
@@ -96,6 +141,12 @@ public class ContaRecorrenteService {
         return toResponseDTO(contaRecorrenteRepository.save(conta));
     }
 
+    /**
+     * Remove uma conta recorrente, garantindo que pertença ao usuário autenticado.
+     *
+     * @param id identificador da conta a ser deletada
+     * @throws EntidadeInexistenteException se a conta não existir ou não pertencer ao usuário
+     */
     @Transactional
     public void deletar(Long id) {
         Usuario usuario = UsuarioAutenticadoService.obterUsuario();
@@ -106,6 +157,14 @@ public class ContaRecorrenteService {
         contaRecorrenteRepository.delete(conta);
     }
 
+    /**
+     * Cria uma transação a partir de uma conta recorrente,
+     * utilizando o dia de vencimento da conta como data da transação.
+     *
+     * @param id identificador da conta recorrente
+     * @return id da transação criada
+     * @throws EntidadeInexistenteException se a conta recorrente não existir
+     */
     @Transactional
     public Long criarTransacao(Long id){
         Usuario usuario = UsuarioAutenticadoService.obterUsuario();
@@ -124,6 +183,13 @@ public class ContaRecorrenteService {
         return transacao.getId();
     }
 
+    /**
+     * Converte uma conta recorrente em uma transação financeira.
+     *
+     * @param conta conta recorrente origem da transação
+     * @param dataPagamento data da transação
+     * @return transação criada com dados da conta
+     */
     private Transacao toTransacao(ContaRecorrente conta, LocalDate dataPagamento) {
         Transacao transacao = new Transacao();
         transacao.setCategoria(conta.getCategoria());
@@ -137,6 +203,12 @@ public class ContaRecorrenteService {
         return transacao;
     }
 
+    /**
+     * Converte uma entidade ContaRecorrente para DTO de resposta.
+     *
+     * @param conta entidade ContaRecorrente
+     * @return DTO de resposta
+     */
     private ContaRecorrenteResponseDTO toResponseDTO(ContaRecorrente conta) {
         ContaRecorrenteResponseDTO dto = new ContaRecorrenteResponseDTO();
         dto.setId(conta.getId());
@@ -151,6 +223,12 @@ public class ContaRecorrenteService {
         return dto;
     }
 
+    /**
+     * Converte uma entidade ContaRecorrente para DTO de resposta (variante).
+     *
+     * @param conta entidade ContaRecorrente
+     * @return DTO de resposta
+     */
     private ContaRecorrenteResponseDTO converterParaResponseDTO(ContaRecorrente conta) {
         ContaRecorrenteResponseDTO dto = new ContaRecorrenteResponseDTO();
         dto.setId(conta.getId());

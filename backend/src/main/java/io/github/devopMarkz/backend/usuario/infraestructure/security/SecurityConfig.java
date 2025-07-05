@@ -22,11 +22,24 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+/**
+ * Classe responsável por configurar a segurança da aplicação utilizando Spring Security.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
+    /**
+     * Configura a cadeia de filtros de segurança, definindo políticas de autenticação, permissões e CORS.
+     *
+     * @param http                       configuração de segurança HTTP.
+     * @param authenticationFilterService filtro personalizado de autenticação baseado em JWT.
+     * @param authenticationEntryPoint    manipulador de erro para autenticação inválida (401).
+     * @param accessDeniedHandler         manipulador de erro para acesso negado (403).
+     * @return o filtro de segurança configurado.
+     * @throws Exception em caso de erro de configuração.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    AuthenticationFilterService authenticationFilterService,
@@ -37,6 +50,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests -> {
+                    // Endpoints públicos
                     authorizeRequests.requestMatchers(
                             "/v2/api-docs/**",
                             "/v3/api-docs/**",
@@ -46,8 +60,12 @@ public class SecurityConfig {
                             "/webjars/**",
                             "/actuator/**"
                     ).permitAll();
+
+                    // Endpoints permitidos sem autenticação
                     authorizeRequests.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
                     authorizeRequests.requestMatchers(HttpMethod.POST, "/usuarios").permitAll();
+
+                    // Demais endpoints requerem autenticação
                     authorizeRequests.anyRequest().authenticated();
                 })
                 .exceptionHandling(exceptions -> {
@@ -58,16 +76,33 @@ public class SecurityConfig {
                 .build();
     }
 
+    /**
+     * Bean responsável por fornecer o encoder de senhas utilizado na aplicação.
+     *
+     * @return instância de {@link BCryptPasswordEncoder}.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Bean que expõe o {@link AuthenticationManager}, necessário para o fluxo de autenticação.
+     *
+     * @param authConfig configuração de autenticação padrão do Spring.
+     * @return o {@link AuthenticationManager} configurado.
+     * @throws Exception em caso de falha na configuração.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
+    /**
+     * Configuração de CORS da aplicação. Define as origens, métodos e cabeçalhos permitidos.
+     *
+     * @return configuração de origem para requisições CORS.
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -75,9 +110,10 @@ public class SecurityConfig {
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
-
 }

@@ -19,6 +19,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Serviço responsável pela lógica de negócio relacionada às Categorias financeiras.
+
+ * Realiza operações de criação, consulta, atualização e exclusão de categorias,
+ * garantindo que as operações sejam feitas apenas pelo usuário que criou a categoria.
+ * Também aplica regras de negócio como normalização do nome e validações.
+ *
+ * @author devopMarkz
+ */
 @Service
 public class CategoriaService {
 
@@ -31,7 +40,8 @@ public class CategoriaService {
     public CategoriaService(CategoriaRepository categoriaRepository,
                             ModelMapper modelMapper,
                             HttpServletRequest request,
-                            StringPadronization stringPadronization, TransacaoRepository transacaoRepository) {
+                            StringPadronization stringPadronization,
+                            TransacaoRepository transacaoRepository) {
         this.categoriaRepository = categoriaRepository;
         this.modelMapper = modelMapper;
         this.request = request;
@@ -39,6 +49,13 @@ public class CategoriaService {
         this.transacaoRepository = transacaoRepository;
     }
 
+    /**
+     * Salva uma nova categoria associada ao usuário autenticado,
+     * aplicando a normalização do nome.
+     *
+     * @param categoriaRequestDTO dados da categoria a ser criada
+     * @return DTO com os dados da categoria salva
+     */
     @Transactional
     public CategoriaResponseDTO save(CategoriaRequestDTO categoriaRequestDTO) {
         Categoria categoria = modelMapper.map(categoriaRequestDTO, Categoria.class);
@@ -54,6 +71,17 @@ public class CategoriaService {
         return modelMapper.map(categoria, CategoriaResponseDTO.class);
     }
 
+    /**
+     * Busca categorias filtradas por nome, tipo e status,
+     * restringindo aos dados do usuário autenticado.
+     *
+     * @param nome filtro opcional pelo nome da categoria
+     * @param tipo filtro opcional pelo tipo da categoria
+     * @param ativa filtro opcional pelo status ativo/inativo
+     * @param pageNumber número da página para paginação
+     * @param pageSize tamanho da página para paginação
+     * @return página com categorias filtradas e paginadas
+     */
     @Transactional(readOnly = true)
     public Page<CategoriaResponseDTO> findCategoriasByFilter(String nome, Tipo tipo, Boolean ativa, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
@@ -66,6 +94,14 @@ public class CategoriaService {
                 .map(cat -> modelMapper.map(cat, CategoriaResponseDTO.class));
     }
 
+    /**
+     * Busca uma categoria pelo seu ID.
+     *
+     * @param id identificador da categoria
+     * @return DTO da categoria encontrada
+     * @throws EntidadeInexistenteException se a categoria não existir
+     * @throws OperacaoInvalidaException se a categoria não pertencer ao usuário autenticado
+     */
     @Transactional(readOnly = true)
     public CategoriaResponseDTO findCategoriaById(Long id) {
         Categoria categoria = categoriaRepository.findById(id)
@@ -76,6 +112,16 @@ public class CategoriaService {
         return modelMapper.map(categoria, CategoriaResponseDTO.class);
     }
 
+    /**
+     * Atualiza uma categoria existente pelo ID,
+     * permitindo alteração do nome e tipo,
+     * com validação de propriedade e normalização do nome.
+     *
+     * @param id identificador da categoria a ser atualizada
+     * @param categoriaRequestDTO dados para atualização da categoria
+     * @throws EntidadeInexistenteException se a categoria não existir
+     * @throws OperacaoInvalidaException se a categoria não pertencer ao usuário autenticado
+     */
     @Transactional
     public void update(Long id, CategoriaRequestDTO categoriaRequestDTO) {
         Categoria categoria = categoriaRepository.findById(id)
@@ -89,6 +135,15 @@ public class CategoriaService {
         categoriaRepository.save(categoria);
     }
 
+    /**
+     * Remove uma categoria pelo ID, desde que pertença ao usuário autenticado
+     * e não esteja sendo usada em nenhuma transação.
+     *
+     * @param id identificador da categoria a ser deletada
+     * @throws EntidadeInexistenteException se a categoria não existir
+     * @throws OperacaoInvalidaException se a categoria não pertencer ao usuário autenticado
+     *                                   ou se estiver sendo usada em alguma transação
+     */
     @Transactional
     public void delete(Long id) {
         Categoria categoria = categoriaRepository.getReferenceById(id);
@@ -106,10 +161,22 @@ public class CategoriaService {
         categoriaRepository.deleteById(id);
     }
 
+    /**
+     * Obtém o usuário atualmente autenticado no sistema.
+     *
+     * @return usuário autenticado
+     */
     private Usuario obterUsuarioLogado() {
         return UsuarioAutenticadoService.obterUsuario();
     }
 
+    /**
+     * Verifica se a categoria pertence ao usuário atualmente autenticado.
+     * Lança exceção caso contrário, impedindo operação indevida.
+     *
+     * @param categoria categoria a ser verificada
+     * @throws OperacaoInvalidaException se a categoria não pertencer ao usuário autenticado
+     */
     private void verificaSeCategoriaFoiCriadaPeloUsuarioLogado(Categoria categoria) {
         String method = request.getMethod();
 
@@ -120,6 +187,12 @@ public class CategoriaService {
         }
     }
 
+    /**
+     * Normaliza o nome da categoria aplicando regras de padronização.
+     *
+     * @param nome nome original da categoria
+     * @return nome normalizado
+     */
     private String normalizarNome(String nome) {
         return stringPadronization.converter(nome);
     }
