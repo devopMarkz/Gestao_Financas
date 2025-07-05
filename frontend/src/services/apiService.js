@@ -142,6 +142,26 @@ class ApiService {
       method: "DELETE",
     })
   }
+
+  async createContaRecorrente(contaRecorrente){
+    return this.request(apiRoutes.contasRecorrentes, {
+      method: "POST",
+      body: JSON.stringify(contaRecorrente),
+    })
+  }
+
+  async getContasRecorrentes(params = {}){
+    const urlParams = new URLSearchParams(params)
+    return this.request(`${apiRoutes.contasRecorrentes}?${urlParams.toString()}`, {
+      method: "GET",
+    })
+  }
+
+  async createTransacaoFromContaRecorrente(id){
+    return this.request(`${apiRoutes.contasRecorrentes}/${id}`, {
+      method: "POST",
+    })
+  }
 }
 
 export default new ApiService()

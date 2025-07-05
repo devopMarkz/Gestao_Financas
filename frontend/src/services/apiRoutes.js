@@ -16,4 +16,6 @@ export default {
 
   // Categorias (para futuro uso)
   categorias: `${BASE_URL}/categorias`,
+
+  contasRecorrentes: `${BASE_URL}/contas-recorrentes`
 }

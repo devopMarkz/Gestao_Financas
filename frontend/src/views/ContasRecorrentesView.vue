@@ -8,9 +8,12 @@
         <div class="header-left">
           <div class="logo">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 7L9 18L4 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+              <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+              <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+              <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
             </svg>
-            <span>Categorias</span>
+            <span>Contas Recorrentes</span>
           </div>
         </div>
         <div class="header-right">
@@ -26,18 +29,7 @@
 
     <div class="dashboard-container">
       <div class="dashboard-header-section">
-        <h1 class="dashboard-title">Gerenciar Categorias</h1>
-        
-        <!-- Botão de Toggle dos Filtros -->
-        <button class="filter-toggle-btn" @click="toggleFiltros" :class="{ active: mostrarFiltros }">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>{{ mostrarFiltros ? 'Ocultar Filtros' : 'Mostrar Filtros' }}</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="chevron" :class="{ rotated: mostrarFiltros }">
-            <polyline points="6,9 12,15 18,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
+        <h1 class="dashboard-title">Contas Recorrentes</h1>
       </div>
 
       <div v-if="erro" class="erro-alert">
@@ -59,91 +51,65 @@
         <button @click="sucesso = ''" class="close-error">×</button>
       </div>
 
-      <!-- Filtros Colapsáveis -->
-      <transition name="filter-slide">
-        <div v-show="mostrarFiltros" class="filtros-card">
-          <h3 class="filtros-title">Filtros</h3>
-          <div class="filtros-content">
-            <div class="filtro-group">
-              <label>Nome da Categoria</label>
-              <input type="text" v-model="filtroNome" placeholder="Buscar categoria..." class="text-input" />
-            </div>
-            <div class="filtro-group">
-              <label>Tipo</label>
-              <select v-model="filtroTipo" class="select-input">
-                <option value="">Todas</option>
-                <option value="RECEITA">Receitas</option>
-                <option value="DESPESA">Despesas</option>
-              </select>
-            </div>
-            <div class="filtro-group">
-              <label>Status</label>
-              <select v-model="filtroAtiva" class="select-input">
-                <option value="">Todas</option>
-                <option value="true">Ativas</option>
-                <option value="false">Inativas</option>
-              </select>
-            </div>
-            <button @click="carregarCategorias" class="filtrar-button" :disabled="carregando">
-              <span v-if="carregando" class="loading-spinner"></span>
-              <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
-                <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2"/>
-              </svg>
-              {{ carregando ? 'Carregando...' : 'Filtrar' }}
-            </button>
-          </div>
-        </div>
-      </transition>
-
-      <!-- Categorias -->
+      <!-- Contas Recorrentes -->
       <div class="transacoes-card">
         <div class="transacoes-header">
-          <h3>Categorias ({{ totalCategorias }} encontradas)</h3>
+          <h3>Minhas Contas ({{ contasRecorrentes.length }} cadastradas)</h3>
           
           <div class="header-actions">
-            <button class="add-transaction-btn" @click="abrirModalCategoria()">
+            <button class="add-transaction-btn" @click="abrirModalConta()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              Nova Categoria
+              Nova Conta
             </button>
           </div>
         </div>
 
-        <div v-if="categorias.length" class="transacoes-table">
+        <div v-if="contasRecorrentes.length" class="transacoes-table">
           <!-- Versão Desktop - Tabela Tradicional -->
           <div class="desktop-table">
             <div class="table-header">
-              <div class="th">Nome</div>
-              <div class="th">Tipo</div>
+              <div class="th">Descrição</div>
+              <div class="th">Valor</div>
+              <div class="th">Vencimento</div>
+              <div class="th">Categoria</div>
               <div class="th">Status</div>
               <div class="th">Ações</div>
             </div>
             <div class="table-body">
-              <div v-for="categoria in categorias" :key="categoria.id" class="table-row">
+              <div v-for="conta in contasRecorrentes" :key="conta.id" class="table-row">
                 <div class="td">
-                  <div class="categoria-nome">{{ categoria.nome }}</div>
+                  <div>
+                    <div class="tx-descricao">{{ conta.descricao }}</div>
+                    <div class="tx-observacoes" v-if="conta.observacoes">{{ conta.observacoes }}</div>
+                  </div>
+                </div>
+                <div class="td valor" :class="conta.tipo.toLowerCase()">{{ formatarBRL(conta.valor) }}</div>
+                <div class="td">Dia {{ conta.diaVencimento }}</div>
+                <div class="td">
+                  <span class="categoria-badge">{{ conta.categoriaNome }}</span>
                 </div>
                 <div class="td">
-                  <span class="tipo-badge" :class="categoria.tipo.toLowerCase()">
-                    {{ categoria.tipo }}
+                  <span class="status-badge" :class="conta.ativa ? 'ativa' : 'inativa'">
+                    {{ conta.ativa ? 'Ativa' : 'Inativa' }}
                   </span>
                 </div>
                 <div class="td">
-                  <span class="status-badge" :class="categoria.ativa ? 'ativa' : 'inativa'">
-                    {{ categoria.ativa ? 'Ativa' : 'Inativa' }}
-                  </span>
-                </div>
-                <div class="td">
-                  <button class="action-btn edit" @click="abrirModalCategoria(categoria)">
+                  <button class="action-btn create" @click="confirmarCriarTransacao(conta)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <button class="action-btn edit" @click="abrirModalConta(conta)">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       <path d="M18.5 2.49998C18.8978 2.10216 19.4374 1.87866 20 1.87866C20.5626 1.87866 21.1022 2.10216 21.5 2.49998C21.8978 2.89781 22.1213 3.43737 22.1213 3.99998C22.1213 4.56259 21.8978 5.10216 21.5 5.49998L12 15L8 16L9 12L18.5 2.49998Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   </button>
-                  <button class="action-btn delete" @click="confirmarExclusao(categoria)">
+                  <button class="action-btn delete" @click="confirmarExclusao(conta)">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <polyline points="3,6 5,6 21,6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       <path d="M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -156,30 +122,38 @@
 
           <!-- Versão Mobile - Lista Compacta -->
           <div class="mobile-list">
-            <div v-for="categoria in categorias" :key="categoria.id" class="table-row">
+            <div v-for="conta in contasRecorrentes" :key="conta.id" class="table-row">
               <div class="transaction-compact">
                 <div class="compact-main">
                   <div class="compact-info">
-                    <span class="compact-description">{{ categoria.nome }}</span>
-                    <span class="compact-date">{{ categoria.tipo }}</span>
+                    <span class="compact-description">{{ conta.descricao }}</span>
+                    <span class="compact-date">Vence dia {{ conta.diaVencimento }}</span>
                   </div>
                   <div class="compact-right">
-                    <span class="compact-status" :class="categoria.ativa ? 'ativa' : 'inativa'">
-                      {{ categoria.ativa ? 'Ativa' : 'Inativa' }}
+                    <span class="compact-value" :class="conta.tipo.toLowerCase()">{{ formatarBRL(conta.valor) }}</span>
+                    <span class="compact-status" :class="conta.ativa ? 'ativa' : 'inativa'">
+                      {{ conta.ativa ? 'Ativa' : 'Inativa' }}
                     </span>
                   </div>
                 </div>
               </div>
 
               <div class="mobile-actions">
-                <button class="action-btn edit" @click="abrirModalCategoria(categoria)">
+                <button class="action-btn create" @click="confirmarCriarTransacao(conta)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Criar Transação
+                </button>
+                <button class="action-btn edit" @click="abrirModalConta(conta)">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M18.5 2.49998C18.8978 2.10216 19.4374 1.87866 20 1.87866C20.5626 1.87866 21.1022 2.10216 21.5 2.49998C21.8978 2.89781 22.1213 3.43737 22.1213 3.99998C22.1213 4.56259 21.8978 5.10216 21.5 5.49998L12 15L8 16L9 12L18.5 2.49998Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                   Editar
                 </button>
-                <button class="action-btn delete" @click="confirmarExclusao(categoria)">
+                <button class="action-btn delete" @click="confirmarExclusao(conta)">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <polyline points="3,6 5,6 21,6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -193,54 +167,70 @@
 
         <div v-else class="empty-state">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 7L9 18L4 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+            <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+            <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+            <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
           </svg>
-          <h4>Nenhuma categoria encontrada</h4>
-          <p>Comece criando sua primeira categoria</p>
-        </div>
-
-        <!-- Paginação -->
-        <div v-if="totalPaginas > 1" class="paginacao">
-          <button 
-            @click="mudarPagina(paginaAtual - 1)" 
-            :disabled="paginaAtual === 0"
-            class="pagina-btn"
-          >
-            Anterior
-          </button>
-          <span class="pagina-info">
-            Página {{ paginaAtual + 1 }} de {{ totalPaginas }}
-          </span>
-          <button 
-            @click="mudarPagina(paginaAtual + 1)" 
-            :disabled="paginaAtual === totalPaginas - 1"
-            class="pagina-btn"
-          >
-            Próxima
-          </button>
+          <h4>Nenhuma conta recorrente cadastrada</h4>
+          <p>Comece adicionando suas contas fixas mensais</p>
         </div>
       </div>
     </div>
 
-    <!-- Modal de Categoria -->
+    <!-- Modal de Conta Recorrente -->
     <div v-if="mostrarModal" class="modal-overlay" @click="fecharModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h3>{{ categoriaEditando ? 'Editar Categoria' : 'Nova Categoria' }}</h3>
+          <h3>{{ contaEditando ? 'Editar Conta Recorrente' : 'Nova Conta Recorrente' }}</h3>
           <button @click="fecharModal" class="close-modal">×</button>
         </div>
-        <form @submit.prevent="salvarCategoria" class="modal-form">
-          <div class="form-group">
-            <label>Nome da Categoria *</label>
-            <input type="text" v-model="formCategoria.nome" required class="form-input" placeholder="Ex: Alimentação, Transporte, Salário..." />
+        <form @submit.prevent="salvarConta" class="modal-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Descrição *</label>
+              <input type="text" v-model="formulario.descricao" required class="form-input" placeholder="Ex: Aluguel, Energia, Internet..." />
+            </div>
+            <div class="form-group">
+              <label>Valor *</label>
+              <input type="number" step="0.01" v-model="formulario.valor" required class="form-input" placeholder="0,00" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Dia do Vencimento *</label>
+              <input type="number" min="1" max="31" v-model="formulario.diaVencimento" required class="form-input" placeholder="Ex: 5, 10, 15..." />
+            </div>
+            <div class="form-group">
+              <label>Tipo *</label>
+              <select v-model="formulario.tipo" required class="form-input">
+                <option value="">Selecione</option>
+                <option value="RECEITA">Receita</option>
+                <option value="DESPESA">Despesa</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Categoria *</label>
+              <select v-model="formulario.categoriaId" required class="form-input">
+                <option value="">Selecione uma categoria</option>
+                <option v-for="categoria in categoriasDisponiveis" :key="categoria.id" :value="categoria.id">
+                  {{ categoria.nome }} ({{ categoria.tipo }})
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select v-model="formulario.ativa" class="form-input">
+                <option :value="true">Ativa</option>
+                <option :value="false">Inativa</option>
+              </select>
+            </div>
           </div>
           <div class="form-group">
-            <label>Tipo *</label>
-            <select v-model="formCategoria.tipo" required class="form-input">
-              <option value="">Selecione o tipo</option>
-              <option value="RECEITA">Receita</option>
-              <option value="DESPESA">Despesa</option>
-            </select>
+            <label>Observações</label>
+            <textarea v-model="formulario.observacoes" class="form-input" rows="3" placeholder="Informações adicionais..."></textarea>
           </div>
           <div class="modal-actions">
             <button type="button" @click="fecharModal" class="btn-cancel">Cancelar</button>
@@ -253,32 +243,30 @@
       </div>
     </div>
 
-    <!-- Modal de Confirmação de Exclusão -->
-    <div v-if="categoriaParaExcluir" class="modal-overlay" @click="categoriaParaExcluir = null">
+    <!-- Modal de Confirmação para Criar Transação -->
+    <div v-if="contaParaTransacao" class="modal-overlay" @click="contaParaTransacao = null">
       <div class="modal-content confirmation-modal" @click.stop>
         <div class="modal-header">
-          <h3>Confirmar Exclusão</h3>
-          <button @click="categoriaParaExcluir = null" class="close-modal">×</button>
+          <h3>Criar Transação</h3>
+          <button @click="contaParaTransacao = null" class="close-modal">×</button>
         </div>
         <div class="confirmation-content">
           <div class="confirmation-icon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-              <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
-              <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+              <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h4>Tem certeza que deseja excluir esta categoria?</h4>
-          <div class="categoria-info">
-            <p><strong>{{ categoriaParaExcluir.nome }}</strong></p>
-            <p>Tipo: <span class="tipo-badge" :class="categoriaParaExcluir.tipo.toLowerCase()">{{ categoriaParaExcluir.tipo }}</span></p>
-            <p class="warning-text">⚠️ Esta ação não pode ser desfeita!</p>
+          <h4>Deseja criar uma transação a partir desta conta recorrente?</h4>
+          <div class="conta-info">
+            <p><strong>{{ contaParaTransacao.descricao }}</strong></p>
+            <p>Valor: <span :class="contaParaTransacao.tipo.toLowerCase()">{{ formatarBRL(contaParaTransacao.valor) }}</span></p>
+            <p>Categoria: {{ contaParaTransacao.categoriaNome }}</p>
           </div>
           <div class="confirmation-actions">
-            <button @click="categoriaParaExcluir = null" class="btn-cancel">Cancelar</button>
-            <button @click="excluirCategoria" :disabled="carregando" class="btn-delete">
+            <button @click="contaParaTransacao = null" class="btn-cancel">Cancelar</button>
+            <button @click="criarTransacaoFromConta" :disabled="carregando" class="btn-save">
               <span v-if="carregando" class="loading-spinner"></span>
-              {{ carregando ? 'Excluindo...' : 'Excluir' }}
+              {{ carregando ? 'Criando...' : 'Criar Transação' }}
             </button>
           </div>
         </div>
@@ -291,82 +279,86 @@
 import apiService from '@/services/apiService';
 
 export default {
-  name: 'CategoriasView',
+  name: 'ContasRecorrentesView',
   data() {
     return {
-      mostrarFiltros: false,
-      
-      filtroNome: '',
-      filtroTipo: '',
-      filtroAtiva: 'true',
-      
+      formulario: {
+        categoriaId: '',
+        descricao: '',
+        valor: '',
+        diaVencimento: '',
+        tipo: '',
+        observacoes: '',
+        ativa: true
+      },
+      contaEditando: null,
+      contaParaTransacao: null,
+      categorias: [],
+      contasRecorrentes: [],
+      mostrarModal: false,
       carregando: false,
       erro: '',
-      sucesso: '',
-      
-      categorias: [],
-      
-      paginaAtual: 0,
-      tamanhoPagina: 20,
-      totalCategorias: 0,
-      totalPaginas: 0,
-      
-      mostrarModal: false,
-      categoriaEditando: null,
-      formCategoria: {
-        nome: '',
-        tipo: ''
-      },
-      categoriaParaExcluir: null,
-    };
+      sucesso: ''
+    }
+  },
+  computed: {
+    categoriasDisponiveis() {
+      if (this.formulario.tipo) {
+        return this.categorias.filter(cat => cat.tipo === this.formulario.tipo);
+      }
+      return this.categorias;
+    }
+  },
+  watch: {
+    'formulario.tipo'() {
+      this.formulario.categoriaId = '';
+    }
   },
   methods: {
-    toggleFiltros() {
-      this.mostrarFiltros = !this.mostrarFiltros;
+    async buscarCategorias() {
+      try {
+        const response = await apiService.getCategorias({ pageSize: 100, ativa: true });
+        this.categorias = response.content || response;
+      } catch (error) {
+        console.error("Erro ao buscar categorias:", error.message);
+        this.erro = "Erro ao carregar categorias";
+      }
     },
 
-    async carregarCategorias() {
-      this.carregando = true;
-      this.erro = '';
-      
+    async buscarContasRecorrentes() {
       try {
-        const params = {
-          pageNumber: this.paginaAtual,
-          pageSize: this.tamanhoPagina
-        };
-        
-        if (this.filtroNome) params.nomeCategoria = this.filtroNome;
-        if (this.filtroTipo) params.tipo = this.filtroTipo;
-        if (this.filtroAtiva !== '') params.ativa = this.filtroAtiva;
-        
-        const data = await apiService.getCategorias(params);
-        this.categorias = data.content;
-        this.totalCategorias = data.totalElements;
-        this.totalPaginas = data.totalPages;
+        this.carregando = true;
+        const response = await apiService.getContasRecorrentes();
+        this.contasRecorrentes = response.content || response;
       } catch (error) {
-        console.error('Erro ao carregar categorias:', error);
-        this.erro = 'Erro ao carregar categorias. Tente novamente.';
+        console.error("Erro ao buscar contas recorrentes:", error.message);
+        this.erro = "Erro ao carregar contas recorrentes";
       } finally {
         this.carregando = false;
       }
     },
 
-    mudarPagina(novaPagina) {
-      this.paginaAtual = novaPagina;
-      this.carregarCategorias();
-    },
-
-    abrirModalCategoria(categoria = null) {
-      this.categoriaEditando = categoria;
-      if (categoria) {
-        this.formCategoria = {
-          nome: categoria.nome,
-          tipo: categoria.tipo
+    abrirModalConta(conta = null) {
+      this.contaEditando = conta;
+      if (conta) {
+        this.formulario = {
+          categoriaId: conta.categoriaId || '',
+          descricao: conta.descricao,
+          valor: conta.valor,
+          diaVencimento: conta.diaVencimento,
+          tipo: conta.tipo,
+          observacoes: conta.observacoes || '',
+          ativa: conta.ativa
         };
       } else {
-        this.formCategoria = {
-          nome: '',
-          tipo: ''
+        this.formulario = {
+          categoriaId: '',
+          descricao: '',
+          valor: '',
+          diaVencimento: '',
+          tipo: '',
+          observacoes: '',
+          ativa: true
         };
       }
       this.mostrarModal = true;
@@ -374,69 +366,87 @@ export default {
 
     fecharModal() {
       this.mostrarModal = false;
-      this.categoriaEditando = null;
+      this.contaEditando = null;
     },
 
-    async salvarCategoria() {
+    async salvarConta() {
       this.carregando = true;
       this.erro = '';
       
       try {
-        if (this.categoriaEditando) {
-          await apiService.updateCategoria(this.categoriaEditando.id, this.formCategoria);
-          this.sucesso = 'Categoria atualizada com sucesso!';
+        const contaData = {
+          ...this.formulario,
+          categoriaId: parseInt(this.formulario.categoriaId),
+          valor: parseFloat(this.formulario.valor),
+          diaVencimento: parseInt(this.formulario.diaVencimento)
+        };
+
+        if (this.contaEditando) {
+          await apiService.updateContaRecorrente(this.contaEditando.id, contaData);
+          this.sucesso = 'Conta recorrente atualizada com sucesso!';
         } else {
-          await apiService.createCategoria(this.formCategoria);
-          this.sucesso = 'Categoria criada com sucesso!';
+          await apiService.createContaRecorrente(contaData);
+          this.sucesso = 'Conta recorrente criada com sucesso!';
         }
 
         this.fecharModal();
-        await this.carregarCategorias();
+        await this.buscarContasRecorrentes();
       } catch (error) {
-        console.error('Erro ao salvar categoria:', error);
-        this.erro = 'Erro ao salvar categoria. Tente novamente.';
+        console.error("Erro ao salvar conta recorrente:", error.message);
+        this.erro = "Erro ao salvar conta recorrente";
       } finally {
         this.carregando = false;
       }
     },
 
-    confirmarExclusao(categoria) {
-      this.categoriaParaExcluir = categoria;
+    confirmarCriarTransacao(conta) {
+      this.contaParaTransacao = conta;
     },
 
-    async excluirCategoria() {
+    async criarTransacaoFromConta() {
       this.carregando = true;
       try {
-        await apiService.deleteCategoria(this.categoriaParaExcluir.id);
-        this.sucesso = 'Categoria excluída com sucesso!';
-        this.categoriaParaExcluir = null;
-        await this.carregarCategorias();
+        await apiService.createTransacaoFromContaRecorrente(this.contaParaTransacao.id);
+        this.sucesso = 'Transação criada com sucesso!';
+        this.contaParaTransacao = null;
       } catch (error) {
-        console.error('Erro ao excluir categoria:', error);
-        
-        if (error.status === 409) {
-          this.erro = error.message || `Não é possível excluir a categoria "${this.categoriaParaExcluir.nome}" pois ela possui transações vinculadas.`;
-        } else if (error.status === 400) {
-          this.erro = error.message || `Erro de validação ao excluir a categoria "${this.categoriaParaExcluir.nome}".`;
-        } else if (error.status === 500) {
-          this.erro = error.message || `Erro interno do servidor ao excluir a categoria "${this.categoriaParaExcluir.nome}".`;
-        } else {
-          this.erro = error.message || 'Erro ao excluir categoria. Tente novamente.';
-        }
+        console.error("Erro ao criar transação:", error.message);
+        this.erro = "Erro ao criar transação";
       } finally {
         this.carregando = false;
       }
+    },
+
+    async confirmarExclusao(conta) {
+      if (confirm(`Tem certeza que deseja excluir a conta "${conta.descricao}"?`)) {
+        try {
+          await apiService.deleteContaRecorrente(conta.id);
+          this.sucesso = 'Conta recorrente excluída com sucesso!';
+          await this.buscarContasRecorrentes();
+        } catch (error) {
+          console.error("Erro ao excluir conta:", error.message);
+          this.erro = "Erro ao excluir conta recorrente";
+        }
+      }
+    },
+
+    formatarBRL(valor) {
+      return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      }).format(valor || 0);
     },
 
     voltarDashboard() {
       this.$router.push('/dashboard');
     }
   },
-  
-  mounted() {
-    this.carregarCategorias();
+
+  created() {
+    this.buscarCategorias();
+    this.buscarContasRecorrentes();
   }
-};
+}
 </script>
 
 <style scoped>
@@ -528,143 +538,6 @@ export default {
   font-weight: 700;
   margin: 0;
   text-align: center;
-}
-
-.filter-toggle-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  border-radius: 8px;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
-  font-weight: 500;
-  backdrop-filter: blur(10px);
-  min-height: 48px;
-}
-
-.filter-toggle-btn:hover {
-  background: rgba(249, 250, 251, 0.95);
-  border-color: #059669;
-  color: #059669;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
-}
-
-.filter-toggle-btn.active {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  color: white;
-  border-color: #059669;
-}
-
-.filter-toggle-btn .chevron {
-  transition: transform 0.3s ease;
-}
-
-.filter-toggle-btn .chevron.rotated {
-  transform: rotate(180deg);
-}
-
-.filter-slide-enter-active,
-.filter-slide-leave-active {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-origin: top;
-}
-
-.filter-slide-enter-from {
-  opacity: 0;
-  transform: translateY(-20px) scaleY(0.8);
-}
-
-.filter-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-20px) scaleY(0.8);
-}
-
-.filtros-card {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 24px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-
-.filtros-title {
-  color: #374151;
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-}
-
-.filtros-content {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.filtro-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.filtro-group label {
-  color: #374151;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.select-input, .text-input {
-  padding: 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: white;
-  color: #1f2937;
-  font-size: 16px;
-  transition: all 0.2s ease;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.select-input:focus, .text-input:focus {
-  outline: none;
-  border-color: #059669;
-  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-}
-
-.filtrar-button {
-  padding: 12px 20px;
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 16px;
-  min-height: 48px;
-}
-
-.filtrar-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
-}
-
-.filtrar-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
 }
 
 .transacoes-card {
@@ -788,6 +661,19 @@ export default {
   gap: 4px;
 }
 
+.compact-value {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.compact-value.receita {
+  color: #059669;
+}
+
+.compact-value.despesa {
+  color: #dc2626;
+}
+
 .compact-status {
   padding: 4px 8px;
   border-radius: 4px;
@@ -826,6 +712,11 @@ export default {
   font-weight: 500;
   min-height: 44px;
   min-width: 100px;
+}
+
+.action-btn.create {
+  background: rgba(5, 150, 105, 0.1);
+  color: #059669;
 }
 
 .action-btn.edit {
@@ -870,42 +761,6 @@ export default {
 .empty-state p {
   color: #9ca3af;
   font-size: 14px;
-}
-
-.paginacao {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  margin-top: 24px;
-  flex-wrap: wrap;
-}
-
-.pagina-btn {
-  padding: 10px 16px;
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  color: #374151;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 14px;
-  min-height: 44px;
-}
-
-.pagina-btn:hover:not(:disabled) {
-  background: #e5e7eb;
-}
-
-.pagina-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pagina-info {
-  color: #6b7280;
-  font-size: 14px;
-  text-align: center;
 }
 
 .erro-alert, .sucesso-alert {
@@ -970,6 +825,13 @@ export default {
   animation: slideUp 0.3s ease-out;
 }
 
+.confirmation-modal {
+  max-width: 400px;
+  border-radius: 12px;
+  margin: auto;
+  align-self: center;
+}
+
 @keyframes slideUp {
   from {
     transform: translateY(100%);
@@ -1023,11 +885,17 @@ export default {
   padding: 20px;
 }
 
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 16px;
 }
 
 .form-group label {
@@ -1120,13 +988,6 @@ export default {
   100% { transform: rotate(360deg); }
 }
 
-.confirmation-modal {
-  max-width: 400px;
-  border-radius: 12px;
-  margin: auto;
-  align-self: center;
-}
-
 .confirmation-content {
   padding: 20px;
   text-align: center;
@@ -1134,7 +995,7 @@ export default {
 
 .confirmation-icon {
   margin-bottom: 16px;
-  color: #dc2626;
+  color: #059669;
 }
 
 .confirmation-content h4 {
@@ -1144,7 +1005,7 @@ export default {
   margin-bottom: 16px;
 }
 
-.categoria-info {
+.conta-info {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
@@ -1153,16 +1014,19 @@ export default {
   text-align: left;
 }
 
-.categoria-info p {
+.conta-info p {
   margin: 4px 0;
   color: #374151;
 }
 
-.warning-text {
+.conta-info .receita {
+  color: #059669;
+  font-weight: 600;
+}
+
+.conta-info .despesa {
   color: #dc2626;
-  font-weight: 500;
-  font-size: 14px;
-  margin-top: 8px !important;
+  font-weight: 600;
 }
 
 .confirmation-actions {
@@ -1171,35 +1035,8 @@ export default {
 }
 
 .confirmation-actions .btn-cancel,
-.confirmation-actions .btn-delete {
+.confirmation-actions .btn-save {
   flex: 1;
-}
-
-.btn-delete {
-  padding: 12px 20px;
-  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 16px;
-  min-height: 48px;
-}
-
-.btn-delete:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-}
-
-.btn-delete:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
 }
 
 @media (max-width: 767px) {
@@ -1271,27 +1108,6 @@ export default {
     text-align: left;
   }
   
-  .filter-toggle-btn {
-    width: auto;
-    min-height: auto;
-  }
-  
-  .filtros-card {
-    padding: 24px;
-    margin-bottom: 32px;
-  }
-  
-  .filtros-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    align-items: end;
-  }
-  
-  .filtrar-button {
-    justify-self: start;
-  }
-  
   .transacoes-card {
     padding: 24px;
     margin-bottom: 32px;
@@ -1301,6 +1117,14 @@ export default {
     font-size: 18px;
   }
 
+  .form-row {
+    flex-direction: row;
+  }
+
+  .modal-actions {
+    flex-direction: row;
+  }
+
   .modal-overlay {
     align-items: center;
     padding: 20px;
@@ -1308,20 +1132,16 @@ export default {
 
   .modal-content {
     border-radius: 12px;
-    max-width: 500px;
+    max-width: 600px;
     width: 100%;
     max-height: 80vh;
-  }
-
-  .modal-actions {
-    flex-direction: row;
   }
 }
 
 @media (min-width: 1024px) {
   .table-header {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1.5fr;
     gap: 16px;
     padding: 16px;
     background: #f8fafc;
@@ -1341,7 +1161,7 @@ export default {
 
   .table-row {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1.5fr;
     gap: 16px;
     padding: 16px;
     border-bottom: 1px solid #f3f4f6;
@@ -1363,7 +1183,7 @@ export default {
     position: static;
   }
 
-  .td:nth-child(4) {
+  .td:nth-child(6) {
     display: flex;
     gap: 8px;
     margin-top: 0;
@@ -1388,28 +1208,38 @@ export default {
     display: none;
   }
 
-  .categoria-nome {
+  .tx-descricao {
     font-weight: 500;
     color: #374151;
     font-size: 16px;
   }
 
-  .tipo-badge {
+  .tx-observacoes {
+    font-size: 14px;
+    color: #9ca3af;
+    margin-top: 4px;
+  }
+
+  .valor.receita {
+    color: #059669;
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .valor.despesa {
+    color: #dc2626;
+    font-weight: 600;
+    font-size: 16px;
+  }
+
+  .categoria-badge {
     padding: 6px 12px;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 500;
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
     display: inline-block;
-  }
-
-  .tipo-badge.receita {
-    background: rgba(5, 150, 105, 0.1);
-    color: #059669;
-  }
-
-  .tipo-badge.despesa {
-    background: rgba(220, 38, 38, 0.1);
-    color: #dc2626;
   }
 
   .status-badge {
