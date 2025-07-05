@@ -5,8 +5,10 @@ import io.github.devopMarkz.backend.financas.application.dto.conta_recorrente.Co
 import io.github.devopMarkz.backend.financas.domain.model.Categoria;
 import io.github.devopMarkz.backend.financas.domain.model.ContaRecorrente;
 import io.github.devopMarkz.backend.financas.domain.model.Tipo;
+import io.github.devopMarkz.backend.financas.domain.model.Transacao;
 import io.github.devopMarkz.backend.financas.domain.repository.CategoriaRepository;
 import io.github.devopMarkz.backend.financas.domain.repository.ContaRecorrenteRepository;
+import io.github.devopMarkz.backend.financas.domain.repository.TransacaoRepository;
 import io.github.devopMarkz.backend.financas.infraestrutucture.exception.EntidadeInexistenteException;
 import io.github.devopMarkz.backend.shared.config.UsuarioAutenticadoService;
 import io.github.devopMarkz.backend.usuario.domain.model.Usuario;
@@ -15,16 +17,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 @Service
 public class ContaRecorrenteService {
 
     private final ContaRecorrenteRepository contaRecorrenteRepository;
     private final CategoriaRepository categoriaRepository;
+    private final TransacaoRepository transacaoRepository;
 
     public ContaRecorrenteService(ContaRecorrenteRepository contaRecorrenteRepository,
-                                  CategoriaRepository categoriaRepository) {
+                                  CategoriaRepository categoriaRepository,
+                                  TransacaoRepository transacaoRepository) {
         this.contaRecorrenteRepository = contaRecorrenteRepository;
         this.categoriaRepository = categoriaRepository;
+        this.transacaoRepository = transacaoRepository;
     }
 
     @Transactional
@@ -97,6 +104,37 @@ public class ContaRecorrenteService {
                 .orElseThrow(() -> new EntidadeInexistenteException("Conta recorrente não encontrada."));
 
         contaRecorrenteRepository.delete(conta);
+    }
+
+    @Transactional
+    public Long criarTransacao(Long id){
+        Usuario usuario = UsuarioAutenticadoService.obterUsuario();
+
+        ContaRecorrente contaRecorrente = contaRecorrenteRepository.buscarPorId(usuario.getId(), id)
+                .orElseThrow(() -> new EntidadeInexistenteException("Conta recorrente inexistente."));
+
+        LocalDate hoje = LocalDate.now();
+
+        LocalDate dataPagamento = LocalDate.of(hoje.getYear(), hoje.getMonth(), contaRecorrente.getDiaVencimento());
+
+        Transacao transacao = toTransacao(contaRecorrente, dataPagamento);
+
+        transacaoRepository.save(transacao);
+
+        return transacao.getId();
+    }
+
+    private Transacao toTransacao(ContaRecorrente conta, LocalDate dataPagamento) {
+        Transacao transacao = new Transacao();
+        transacao.setCategoria(conta.getCategoria());
+        transacao.setUsuario(conta.getUsuario());
+        transacao.setDescricao(conta.getDescricao());
+        transacao.setValor(conta.getValor());
+        transacao.setTipo(conta.getTipo());
+        transacao.setObservacoes(conta.getObservacoes());
+        transacao.setDataTransacao(dataPagamento);
+
+        return transacao;
     }
 
     private ContaRecorrenteResponseDTO toResponseDTO(ContaRecorrente conta) {

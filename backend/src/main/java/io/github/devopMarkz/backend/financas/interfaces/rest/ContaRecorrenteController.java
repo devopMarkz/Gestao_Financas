@@ -4,12 +4,12 @@ import io.github.devopMarkz.backend.financas.application.dto.conta_recorrente.Co
 import io.github.devopMarkz.backend.financas.application.dto.conta_recorrente.ContaRecorrenteResponseDTO;
 import io.github.devopMarkz.backend.financas.application.service.ContaRecorrenteService;
 import io.github.devopMarkz.backend.financas.domain.model.Tipo;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -77,4 +77,12 @@ public class ContaRecorrenteController {
         contaRecorrenteService.deletar(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{idConta}")
+    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
+    public ResponseEntity<Void> criarTransacao(@PathVariable Long idConta, HttpServletRequest request) {
+        Long id = contaRecorrenteService.criarTransacao(idConta);
+        return ResponseEntity.created(URI.create(request.getContextPath() + "/transacoes/" + id)).build();
+    }
+
 }
