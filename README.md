@@ -65,7 +65,6 @@ O sistema utiliza Spring Security com JWT para autenticação e autorização.
 ### Frontend
 - **Vue 2**
 - **Vue Router**
-- **Axios** (com interceptor para JWT)
 ---
 ## 🔮 Futuras Evoluções
 - **Geração de gráficos de gastos/receitas**.
