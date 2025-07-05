@@ -461,6 +461,40 @@
         </form>
       </div>
     </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div v-if="transacaoParaExcluir" class="modal-overlay" @click="transacaoParaExcluir = null">
+      <div class="modal-content confirmation-modal" @click.stop>
+        <div class="modal-header">
+          <h3>Confirmar Exclusão</h3>
+          <button @click="transacaoParaExcluir = null" class="close-modal">×</button>
+        </div>
+        <div class="confirmation-content">
+          <div class="confirmation-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+              <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <h4>Tem certeza que deseja excluir esta transação?</h4>
+          <div class="transacao-info">
+            <p><strong>{{ transacaoParaExcluir.descricao }}</strong></p>
+            <p>Valor: <span :class="transacaoParaExcluir.tipo.toLowerCase()">{{ formatarBRL(transacaoParaExcluir.valor) }}</span></p>
+            <p>Data: {{ formatarData(transacaoParaExcluir.dataTransacao) }}</p>
+            <p>Categoria: {{ transacaoParaExcluir.categoria.nome }}</p>
+            <p class="warning-text">⚠️ Esta ação não pode ser desfeita!</p>
+          </div>
+          <div class="confirmation-actions">
+            <button @click="transacaoParaExcluir = null" class="btn-cancel">Cancelar</button>
+            <button @click="excluirTransacao" :disabled="carregando" class="btn-delete">
+              <span v-if="carregando" class="loading-spinner"></span>
+              {{ carregando ? 'Excluindo...' : 'Excluir' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -513,6 +547,7 @@ export default {
         paga: true
       },
       categoriasDisponiveis: [],
+      transacaoParaExcluir: null,
     };
   },
   computed: {
@@ -675,15 +710,21 @@ export default {
       }
     },
 
-    async confirmarExclusao(transacao) {
-      if (confirm(`Tem certeza que deseja excluir a transação "${transacao.descricao}"?`)) {
-        try {
-          await apiService.deleteTransacao(transacao.id);
-          await this.carregarDados();
-        } catch (error) {
-          console.error('Erro ao excluir transação:', error);
-          this.erro = 'Erro ao excluir transação. Tente novamente.';
-        }
+    confirmarExclusao(transacao) {
+      this.transacaoParaExcluir = transacao;
+    },
+
+    async excluirTransacao() {
+      this.carregando = true;
+      try {
+        await apiService.deleteTransacao(this.transacaoParaExcluir.id);
+        this.transacaoParaExcluir = null;
+        await this.carregarDados();
+      } catch (error) {
+        console.error('Erro ao excluir transação:', error);
+        this.erro = 'Erro ao excluir transação. Tente novamente.';
+      } finally {
+        this.carregando = false;
       }
     },
 
@@ -1477,6 +1518,8 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
 .modal-overlay {
@@ -1496,7 +1539,7 @@ export default {
 .modal-content {
   background: white;
   border-radius: 12px 12px 0 0;
-  width: 100%;
+  width: 50%;
   max-height: 90vh;
   overflow-y: auto;
   animation: slideUp 0.3s ease-out;
@@ -1831,6 +1874,10 @@ export default {
 }
 
 @media (max-width: 767px) {
+  .modal-content {
+    width: 100%;
+  }
+
   .td:first-child {
     margin-bottom: 16px;
     padding-bottom: 16px;
@@ -2193,6 +2240,95 @@ export default {
   transform: translateY(-10px) scale(0.95);
 }
 
+.confirmation-modal {
+  max-width: 400px;
+  border-radius: 12px;
+  margin: auto;
+  align-self: center;
+}
+
+.confirmation-content {
+  padding: 20px;
+  text-align: center;
+}
+
+.confirmation-icon {
+  margin-bottom: 16px;
+  color: #dc2626;
+}
+
+.confirmation-content h4 {
+  color: #374151;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.transacao-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.transacao-info p {
+  margin: 4px 0;
+  color: #374151;
+}
+
+.transacao-info .receita {
+  color: #059669;
+  font-weight: 600;
+}
+
+.transacao-info .despesa {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.warning-text {
+  color: #dc2626;
+  font-weight: 500;
+  font-size: 14px;
+  margin-top: 8px !important;
+}
+
+.confirmation-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.confirmation-actions .btn-cancel,
+.confirmation-actions .btn-delete {
+  flex: 1;
+}
+
+.btn-delete {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  min-height: 48px;
+}
+
+.btn-delete:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.btn-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
 </style>
-
-

@@ -272,6 +272,40 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div v-if="contaParaExcluir" class="modal-overlay" @click="contaParaExcluir = null">
+      <div class="modal-content confirmation-modal" @click.stop>
+        <div class="modal-header">
+          <h3>Confirmar Exclusão</h3>
+          <button @click="contaParaExcluir = null" class="close-modal">×</button>
+        </div>
+        <div class="confirmation-content">
+          <div class="confirmation-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+              <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <h4>Tem certeza que deseja excluir esta conta recorrente?</h4>
+          <div class="conta-info">
+            <p><strong>{{ contaParaExcluir.descricao }}</strong></p>
+            <p>Valor: <span :class="contaParaExcluir.tipo.toLowerCase()">{{ formatarBRL(contaParaExcluir.valor) }}</span></p>
+            <p>Vencimento: Dia {{ contaParaExcluir.diaVencimento }}</p>
+            <p>Categoria: {{ contaParaExcluir.categoriaNome }}</p>
+            <p class="warning-text">⚠️ Esta ação não pode ser desfeita!</p>
+          </div>
+          <div class="confirmation-actions">
+            <button @click="contaParaExcluir = null" class="btn-cancel">Cancelar</button>
+            <button @click="excluirConta" :disabled="carregando" class="btn-delete">
+              <span v-if="carregando" class="loading-spinner"></span>
+              {{ carregando ? 'Excluindo...' : 'Excluir' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -293,6 +327,7 @@ export default {
       },
       contaEditando: null,
       contaParaTransacao: null,
+      contaParaExcluir: null,
       categorias: [],
       contasRecorrentes: [],
       mostrarModal: false,
@@ -417,16 +452,22 @@ export default {
       }
     },
 
-    async confirmarExclusao(conta) {
-      if (confirm(`Tem certeza que deseja excluir a conta "${conta.descricao}"?`)) {
-        try {
-          await apiService.deleteContaRecorrente(conta.id);
-          this.sucesso = 'Conta recorrente excluída com sucesso!';
-          await this.buscarContasRecorrentes();
-        } catch (error) {
-          console.error("Erro ao excluir conta:", error.message);
-          this.erro = "Erro ao excluir conta recorrente";
-        }
+    confirmarExclusao(conta) {
+      this.contaParaExcluir = conta;
+    },
+
+    async excluirConta() {
+      this.carregando = true;
+      try {
+        await apiService.deleteContaRecorrente(this.contaParaExcluir.id);
+        this.sucesso = 'Conta recorrente excluída com sucesso!';
+        this.contaParaExcluir = null;
+        await this.buscarContasRecorrentes();
+      } catch (error) {
+        console.error("Erro ao excluir conta:", error.message);
+        this.erro = "Erro ao excluir conta recorrente";
+      } finally {
+        this.carregando = false;
       }
     },
 
@@ -1259,5 +1300,44 @@ export default {
     background: rgba(156, 163, 175, 0.1);
     color: #6b7280;
   }
+}
+
+.confirmation-icon {
+  margin-bottom: 16px;
+  color: #dc2626;
+}
+
+.warning-text {
+  color: #dc2626;
+  font-weight: 500;
+  font-size: 14px;
+  margin-top: 8px !important;
+}
+
+.btn-delete {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 16px;
+  min-height: 48px;
+}
+
+.btn-delete:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.btn-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 </style>
