@@ -11,6 +11,7 @@ Uma interface limpa e direta com Vue 2 + Vue Router, contemplando:
 - **Transações**: Cadastro e filtro de receitas e despesas.
 - **Categorias**: Cadastro de categorias personalizadas por usuário.
 - **Contas Recorrentes**: Gestão de contas fixas mensais (como aluguel, energia etc.).
+- - **Gráficos Financeiros**: Visualização de receitas e despesas ao longo do tempo, facilitando o acompanhamento e a análise financeira.
 ### Backend (Spring Boot)
 Uma API REST robusta com Spring Boot, responsável por toda a lógica de negócio, autenticação e persistência dos dados.
 - **Segurança com JWT**: Controle de sessão via token.
