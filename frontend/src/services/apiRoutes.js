@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8081"
+const BASE_URL = process.env.VUE_APP_BASE_URL;
 
 export default {
   // Auth
