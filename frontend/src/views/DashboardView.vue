@@ -417,21 +417,21 @@
         <form @submit.prevent="salvarTransacao" class="modal-form">
           <div class="form-row">
             <div class="form-group">
-              <label>Descrição *</label>
+              <label>Descrição <span style="color: red;">*</span></label>
               <input type="text" v-model="formTransacao.descricao" required class="form-input" />
             </div>
             <div class="form-group">
-              <label>Valor *</label>
-              <input type="number" step="0.01" v-model="formTransacao.valor" required class="form-input" />
+              <label>Valor <span style="color: red;">*</span></label>
+              <input type="number" min="0.1" step="0.01" v-model="formTransacao.valor" required class="form-input" />
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Data *</label>
+              <label>Data <span style="color: red;">*</span></label>
               <input type="date" v-model="formTransacao.dataTransacao" required class="form-input" />
             </div>
             <div class="form-group">
-              <label>Tipo *</label>
+              <label>Tipo <span style="color: red;">*</span></label>
               <select v-model="formTransacao.tipo" required class="form-input">
                 <option value="">Selecione</option>
                 <option value="RECEITA">Receitas</option>
@@ -441,7 +441,7 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>Categoria *</label>
+              <label>Categoria <span style="color: red;">*</span></label>
               <select v-model="formTransacao.categoriaId" required class="form-input">
                 <option value="">Selecione uma categoria</option>
                 <option v-for="categoria in categoriasDisponiveis" :key="categoria.id" :value="categoria.id">
@@ -697,11 +697,21 @@ export default {
 
     async salvarTransacao() {
       this.salvandoTransacao = true;
+      this.erro = null;
+
       try {
+        const valor = parseFloat(this.formTransacao.valor);
+
+        if (isNaN(valor) || valor <= 0) {
+          this.erro = 'O valor deve ser um número maior que zero.';
+          this.salvandoTransacao = false;
+          return;
+        }
+
         const transacaoData = {
           ...this.formTransacao,
           categoriaId: parseInt(this.formTransacao.categoriaId),
-          valor: parseFloat(this.formTransacao.valor)
+          valor: valor
         };
 
         if (this.transacaoEditando) {
@@ -1554,7 +1564,7 @@ export default {
   background: white;
   border-radius: 12px 12px 0 0;
   width: 50%;
-  max-height: 90vh;
+  max-height: 80vh;
   overflow-y: auto;
   animation: slideUp 0.3s ease-out;
 }

@@ -39,16 +39,16 @@
           >
             {{ periodo.label }}
           </button>
-          <button 
+          <!--<button 
             @click="ativarPersonalizado"
             :class="['period-btn', { active: mostrarPersonalizado }]"
           >
             Personalizado
-          </button>
+          </button>-->
         </div>
 
         <!-- Período Personalizado -->
-        <div v-if="mostrarPersonalizado" class="periodo-personalizado">
+        <!--<div v-if="mostrarPersonalizado" class="periodo-personalizado">
           <div class="data-inputs">
             <div class="input-group">
               <label>Data Início</label>
@@ -70,7 +70,7 @@
               Aplicar
             </button>
           </div>
-        </div>
+        </div>-->
       </div>
 
       <div v-if="erro" class="erro-alert">
@@ -218,15 +218,14 @@ export default {
   name: 'GraficoReceitaDespesaView',
   data() {
     return {
-      periodoSelecionado: '12',
+      periodoSelecionado: '3',
       mostrarPersonalizado: false,
       dataInicio: '',
       dataFim: '',
       periodos: [
         { value: '3', label: '3 meses' },
         { value: '6', label: '6 meses' },
-        { value: '12', label: '12 meses' },
-        { value: '24', label: '24 meses' }
+        { value: '12', label: '12 meses' }
       ],
       dadosGrafico: [],
       resumo: {

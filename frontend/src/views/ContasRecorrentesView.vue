@@ -193,7 +193,7 @@
             </div>
             <div class="form-group">
               <label>Valor *</label>
-              <input type="number" step="0.01" v-model="formulario.valor" required class="form-input" placeholder="0,00" />
+              <input type="number" min="0.1" step="0.01" v-model="formulario.valor" required class="form-input" placeholder="0,00" />
             </div>
           </div>
           <div class="form-row">
@@ -861,7 +861,7 @@ export default {
   background: white;
   border-radius: 12px 12px 0 0;
   width: 100%;
-  max-height: 90vh;
+  max-height: 80vh;
   overflow-y: auto;
   animation: slideUp 0.3s ease-out;
 }
