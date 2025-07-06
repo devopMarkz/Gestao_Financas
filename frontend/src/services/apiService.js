@@ -11,7 +11,6 @@ function logErrorToLocalStorage(errorMessage) {
 class ApiService {
   async request(url, options = {}) {
     const token = authService.getToken()
-
     const config = {
       headers: {
         "Content-Type": "application/json",
@@ -45,17 +44,12 @@ class ApiService {
     // === Tratamento genérico de erros !== 200/201/204 ===
     if (!response.ok) {
       let errorMessage = `Erro na API: ${response.status}`
-
       try {
         const errorData = await response.text()
         if (errorData) {
           try {
             const errorJson = JSON.parse(errorData)
-            errorMessage =
-              errorJson.message ||
-              errorJson.error ||
-              errorJson.detail ||
-              errorMessage
+            errorMessage = errorJson.message || errorJson.error || errorJson.detail || errorMessage
           } catch {
             errorMessage = errorData
           }
@@ -65,7 +59,6 @@ class ApiService {
       }
 
       logErrorToLocalStorage(errorMessage)
-
       const error = new Error(errorMessage)
       error.status = response.status
       throw error
@@ -143,21 +136,33 @@ class ApiService {
     })
   }
 
-  async createContaRecorrente(contaRecorrente){
+  // === CONTAS RECORRENTES ===
+  async getContasRecorrentes(params = {}) {
+    const urlParams = new URLSearchParams(params)
+    return this.request(`${apiRoutes.contasRecorrentes}?${urlParams.toString()}`)
+  }
+
+  async createContaRecorrente(contaRecorrente) {
     return this.request(apiRoutes.contasRecorrentes, {
       method: "POST",
       body: JSON.stringify(contaRecorrente),
     })
   }
 
-  async getContasRecorrentes(params = {}){
-    const urlParams = new URLSearchParams(params)
-    return this.request(`${apiRoutes.contasRecorrentes}?${urlParams.toString()}`, {
-      method: "GET",
+  async updateContaRecorrente(id, contaRecorrente) {
+    return this.request(`${apiRoutes.contasRecorrentes}/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(contaRecorrente),
     })
   }
 
-  async createTransacaoFromContaRecorrente(id){
+  async deleteContaRecorrente(id) {
+    return this.request(`${apiRoutes.contasRecorrentes}/${id}`, {
+      method: "DELETE",
+    })
+  }
+
+  async createTransacaoFromContaRecorrente(id) {
     return this.request(`${apiRoutes.contasRecorrentes}/${id}`, {
       method: "POST",
     })

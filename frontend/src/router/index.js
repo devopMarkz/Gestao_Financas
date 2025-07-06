@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import LoginView from '@/views/LoginView.vue'
-/* import authService from '@/services/authService'*/
+import authService from '@/services/authService'
 
 Vue.use(VueRouter)
 
@@ -40,6 +40,11 @@ const routes = [
     name: 'ContasRecorrentesView',
     path: '/contas-recorrentes',
     component: () => import('@/views/ContasRecorrentesView.vue')
+  },
+  {
+    name: 'GraficoReceitaDespesaView',
+    path: '/grafico-analise',
+    component: () => import('@/views/GraficoReceitaDespesaView.vue')
   }
 ]
 
@@ -49,7 +54,7 @@ const router = new VueRouter({
   routes
 });
 
-/*router.beforeEach((to, from, next) => {
+router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!authService.isAuthenticated()) {
       next({path: '/login', replace: true});
@@ -59,6 +64,6 @@ const router = new VueRouter({
   } else {
     next();
   }
-});*/
+});
 
 export default router

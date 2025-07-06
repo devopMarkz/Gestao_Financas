@@ -286,26 +286,26 @@
               <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
               <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
               <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
-            </svg>
-          </div>
-          <h4>Tem certeza que deseja excluir esta conta recorrente?</h4>
-          <div class="conta-info">
-            <p><strong>{{ contaParaExcluir.descricao }}</strong></p>
-            <p>Valor: <span :class="contaParaExcluir.tipo.toLowerCase()">{{ formatarBRL(contaParaExcluir.valor) }}</span></p>
-            <p>Vencimento: Dia {{ contaParaExcluir.diaVencimento }}</p>
-            <p>Categoria: {{ contaParaExcluir.categoriaNome }}</p>
-            <p class="warning-text">⚠️ Esta ação não pode ser desfeita!</p>
-          </div>
-          <div class="confirmation-actions">
-            <button @click="contaParaExcluir = null" class="btn-cancel">Cancelar</button>
-            <button @click="excluirConta" :disabled="carregando" class="btn-delete">
-              <span v-if="carregando" class="loading-spinner"></span>
-              {{ carregando ? 'Excluindo...' : 'Excluir' }}
-            </button>
-          </div>
-        </div>
+        </svg>
+      </div>
+      <h4>Tem certeza que deseja excluir esta conta recorrente?</h4>
+      <div class="conta-info">
+        <p><strong>{{ contaParaExcluir.descricao }}</strong></p>
+        <p>Valor: <span :class="contaParaExcluir.tipo.toLowerCase()">{{ formatarBRL(contaParaExcluir.valor) }}</span></p>
+        <p>Vencimento: Dia {{ contaParaExcluir.diaVencimento }}</p>
+        <p>Categoria: {{ contaParaExcluir.categoriaNome }}</p>
+        <p class="warning-text">⚠️ Esta ação não pode ser desfeita!</p>
+      </div>
+      <div class="confirmation-actions">
+        <button @click="contaParaExcluir = null" class="btn-cancel">Cancelar</button>
+        <button @click="excluirConta" :disabled="carregando" class="btn-delete">
+          <span v-if="carregando" class="loading-spinner"></span>
+          {{ carregando ? 'Excluindo...' : 'Excluir' }}
+        </button>
       </div>
     </div>
+  </div>
+</div>
   </div>
 </template>
 
@@ -327,13 +327,13 @@ export default {
       },
       contaEditando: null,
       contaParaTransacao: null,
-      contaParaExcluir: null,
       categorias: [],
       contasRecorrentes: [],
       mostrarModal: false,
       carregando: false,
       erro: '',
-      sucesso: ''
+      sucesso: '',
+      contaParaExcluir: null, // Já existe, mas vamos garantir que está sendo usada
     }
   },
   computed: {
