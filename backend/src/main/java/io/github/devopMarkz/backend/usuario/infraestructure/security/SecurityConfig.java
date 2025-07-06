@@ -63,7 +63,7 @@ public class SecurityConfig {
 
                     // Endpoints permitidos sem autenticação
                     authorizeRequests.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
-                    authorizeRequests.requestMatchers(HttpMethod.POST, "/usuarios").permitAll();
+                    authorizeRequests.requestMatchers(HttpMethod.POST, "/usuarios").denyAll();
 
                     // Demais endpoints requerem autenticação
                     authorizeRequests.anyRequest().authenticated();
