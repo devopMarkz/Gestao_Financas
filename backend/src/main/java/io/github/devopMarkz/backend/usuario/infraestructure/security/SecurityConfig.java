@@ -50,7 +50,6 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests -> {
-                    // Endpoints públicos
                     authorizeRequests.requestMatchers(
                             "/v2/api-docs/**",
                             "/v3/api-docs/**",
@@ -59,10 +58,12 @@ public class SecurityConfig {
                             "/swagger-ui/**",
                             "/webjars/**",
                             "/actuator/**"
-                    ).permitAll();
+                    ).hasAuthority("ROLE_ADMIN");
 
                     // Endpoints permitidos sem autenticação
                     authorizeRequests.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
+
+                    // Rota bloqueada
                     authorizeRequests.requestMatchers(HttpMethod.POST, "/usuarios").denyAll();
 
                     // Demais endpoints requerem autenticação
