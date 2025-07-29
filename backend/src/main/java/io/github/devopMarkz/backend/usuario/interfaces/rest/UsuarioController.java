@@ -15,7 +15,6 @@ import static io.github.devopMarkz.backend.shared.utils.UriGenerator.generateUri
 
 /**
  * Controlador REST responsável pelas operações relacionadas aos usuários do sistema.
- *
  * Fornece endpoints para criação e listagem de usuários.
  */
 @RestController
@@ -35,7 +34,6 @@ public class UsuarioController {
 
     /**
      * Endpoint para criação de um novo usuário.
-     *
      * Recebe os dados necessários para cadastro, realiza validação e retorna o usuário criado.
      *
      * @param usuarioCreateDTODTO objeto com os dados do novo usuário.
@@ -50,7 +48,6 @@ public class UsuarioController {
 
     /**
      * Endpoint para listar todos os usuários cadastrados no sistema.
-     *
      * Requer autenticação com perfil de usuário comum (ROLE_USER).
      *
      * @return {@link ResponseEntity} contendo a lista de usuários.

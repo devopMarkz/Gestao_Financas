@@ -2,6 +2,7 @@ package io.github.devopMarkz.backend.financas.application.service;
 
 import io.github.devopMarkz.backend.financas.application.dto.conta_recorrente.ContaRecorrenteRequestDTO;
 import io.github.devopMarkz.backend.financas.application.dto.conta_recorrente.ContaRecorrenteResponseDTO;
+import io.github.devopMarkz.backend.financas.application.mappers.ContaRecorrenteMapper;
 import io.github.devopMarkz.backend.financas.domain.model.Categoria;
 import io.github.devopMarkz.backend.financas.domain.model.ContaRecorrente;
 import io.github.devopMarkz.backend.financas.domain.model.Tipo;
@@ -21,7 +22,6 @@ import java.time.LocalDate;
 
 /**
  * Serviço responsável pela lógica de negócio relacionada às Contas Recorrentes.
- *
  * Gerencia operações de criação, busca, atualização, exclusão e criação de transações a partir de contas recorrentes,
  * garantindo que as operações sejam feitas somente pelo usuário autenticado e que categorias relacionadas existam.
  *
@@ -33,13 +33,16 @@ public class ContaRecorrenteService {
     private final ContaRecorrenteRepository contaRecorrenteRepository;
     private final CategoriaRepository categoriaRepository;
     private final TransacaoRepository transacaoRepository;
+    private final ContaRecorrenteMapper contaRecorrenteMapper;
 
     public ContaRecorrenteService(ContaRecorrenteRepository contaRecorrenteRepository,
                                   CategoriaRepository categoriaRepository,
-                                  TransacaoRepository transacaoRepository) {
+                                  TransacaoRepository transacaoRepository,
+                                  ContaRecorrenteMapper contaRecorrenteMapper) {
         this.contaRecorrenteRepository = contaRecorrenteRepository;
         this.categoriaRepository = categoriaRepository;
         this.transacaoRepository = transacaoRepository;
+        this.contaRecorrenteMapper = contaRecorrenteMapper;
     }
 
     /**
@@ -54,13 +57,11 @@ public class ContaRecorrenteService {
     public ContaRecorrenteResponseDTO salvar(ContaRecorrenteRequestDTO dto) {
         Usuario usuario = UsuarioAutenticadoService.obterUsuario();
 
-        Categoria categoria = categoriaRepository.findById(dto.getCategoriaId())
-                .orElseThrow(() -> new EntidadeInexistenteException("Categoria inexistente."));
-
-        ContaRecorrente conta = new ContaRecorrente(usuario, categoria, dto.getDescricao(), dto.getValor(), dto.getDiaVencimento(), dto.getTipo(), dto.getAtiva(), dto.getObservacoes());
+        ContaRecorrente conta = contaRecorrenteMapper.toContaRecorrente(dto);
+        conta.setUsuario(usuario);
 
         conta = contaRecorrenteRepository.save(conta);
-        return toResponseDTO(conta);
+        return contaRecorrenteMapper.toContaRecorrenteResponseDTO(conta);
     }
 
     /**
@@ -90,7 +91,7 @@ public class ContaRecorrenteService {
                 usuario.getId(), descricao, categoriaId, tipo, ativa, diaVencimento, pageable
         );
 
-        return contas.map(this::converterParaResponseDTO);
+        return contas.map(contaRecorrenteMapper::toContaRecorrenteResponseDTO);
     }
 
     /**
@@ -108,7 +109,7 @@ public class ContaRecorrenteService {
         ContaRecorrente conta = contaRecorrenteRepository.buscarPorId(id, usuario.getId())
                 .orElseThrow(() -> new EntidadeInexistenteException("Conta recorrente não encontrada."));
 
-        return toResponseDTO(conta);
+        return contaRecorrenteMapper.toContaRecorrenteResponseDTO(conta);
     }
 
     /**
@@ -138,7 +139,7 @@ public class ContaRecorrenteService {
         conta.setAtiva(dto.getAtiva());
         conta.setObservacoes(dto.getObservacoes());
 
-        return toResponseDTO(contaRecorrenteRepository.save(conta));
+        return contaRecorrenteMapper.toContaRecorrenteResponseDTO(contaRecorrenteRepository.save(conta));
     }
 
     /**
@@ -183,13 +184,6 @@ public class ContaRecorrenteService {
         return transacao.getId();
     }
 
-    /**
-     * Converte uma conta recorrente em uma transação financeira.
-     *
-     * @param conta conta recorrente origem da transação
-     * @param dataPagamento data da transação
-     * @return transação criada com dados da conta
-     */
     private Transacao toTransacao(ContaRecorrente conta, LocalDate dataPagamento) {
         Transacao transacao = new Transacao();
         transacao.setCategoria(conta.getCategoria());
@@ -201,47 +195,5 @@ public class ContaRecorrenteService {
         transacao.setDataTransacao(dataPagamento);
 
         return transacao;
-    }
-
-    /**
-     * Converte uma entidade ContaRecorrente para DTO de resposta.
-     *
-     * @param conta entidade ContaRecorrente
-     * @return DTO de resposta
-     */
-    private ContaRecorrenteResponseDTO toResponseDTO(ContaRecorrente conta) {
-        ContaRecorrenteResponseDTO dto = new ContaRecorrenteResponseDTO();
-        dto.setId(conta.getId());
-        dto.setCategoriaId(conta.getCategoria().getId());
-        dto.setCategoriaNome(conta.getCategoria().getNome());
-        dto.setDescricao(conta.getDescricao());
-        dto.setValor(conta.getValor());
-        dto.setDiaVencimento(conta.getDiaVencimento());
-        dto.setTipo(conta.getTipo().name());
-        dto.setAtiva(conta.getAtiva());
-        dto.setObservacoes(conta.getObservacoes());
-        return dto;
-    }
-
-    /**
-     * Converte uma entidade ContaRecorrente para DTO de resposta (variante).
-     *
-     * @param conta entidade ContaRecorrente
-     * @return DTO de resposta
-     */
-    private ContaRecorrenteResponseDTO converterParaResponseDTO(ContaRecorrente conta) {
-        ContaRecorrenteResponseDTO dto = new ContaRecorrenteResponseDTO();
-        dto.setId(conta.getId());
-        dto.setDescricao(conta.getDescricao());
-        dto.setValor(conta.getValor());
-        dto.setDiaVencimento(conta.getDiaVencimento());
-        dto.setTipo(conta.getTipo().name());
-        dto.setAtiva(conta.getAtiva());
-        dto.setObservacoes(conta.getObservacoes());
-
-        dto.setCategoriaId(conta.getCategoria().getId());
-        dto.setCategoriaNome(conta.getCategoria().getNome());
-
-        return dto;
     }
 }

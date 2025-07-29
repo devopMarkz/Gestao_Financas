@@ -2,6 +2,7 @@ package io.github.devopMarkz.backend.financas.application.service;
 
 import io.github.devopMarkz.backend.financas.application.dto.categoria.CategoriaRequestDTO;
 import io.github.devopMarkz.backend.financas.application.dto.categoria.CategoriaResponseDTO;
+import io.github.devopMarkz.backend.financas.application.mappers.CategoriaMapper;
 import io.github.devopMarkz.backend.financas.domain.model.Categoria;
 import io.github.devopMarkz.backend.financas.domain.model.Tipo;
 import io.github.devopMarkz.backend.financas.domain.repository.CategoriaRepository;
@@ -12,7 +13,6 @@ import io.github.devopMarkz.backend.shared.config.UsuarioAutenticadoService;
 import io.github.devopMarkz.backend.shared.utils.StringPadronization;
 import io.github.devopMarkz.backend.usuario.domain.model.Usuario;
 import jakarta.servlet.http.HttpServletRequest;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,21 +32,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
-    private final ModelMapper modelMapper;
     private final StringPadronization stringPadronization;
     private final HttpServletRequest request;
     private final TransacaoRepository transacaoRepository;
+    private final CategoriaMapper categoriaMapper;
 
     public CategoriaService(CategoriaRepository categoriaRepository,
-                            ModelMapper modelMapper,
                             HttpServletRequest request,
                             StringPadronization stringPadronization,
-                            TransacaoRepository transacaoRepository) {
+                            TransacaoRepository transacaoRepository,
+                            CategoriaMapper categoriaMapper) {
         this.categoriaRepository = categoriaRepository;
-        this.modelMapper = modelMapper;
         this.request = request;
         this.stringPadronization = stringPadronization;
         this.transacaoRepository = transacaoRepository;
+        this.categoriaMapper = categoriaMapper;
     }
 
     /**
@@ -58,7 +58,7 @@ public class CategoriaService {
      */
     @Transactional
     public CategoriaResponseDTO save(CategoriaRequestDTO categoriaRequestDTO) {
-        Categoria categoria = modelMapper.map(categoriaRequestDTO, Categoria.class);
+        Categoria categoria = categoriaMapper.toCategoria(categoriaRequestDTO);
 
         categoria.setNome(normalizarNome(categoria.getNome()));
 
@@ -68,7 +68,7 @@ public class CategoriaService {
 
         categoria = categoriaRepository.save(categoria);
 
-        return modelMapper.map(categoria, CategoriaResponseDTO.class);
+        return categoriaMapper.toCategoriaResponseDTO(categoria);
     }
 
     /**
@@ -91,7 +91,7 @@ public class CategoriaService {
         Page<Categoria> categorias = categoriaRepository.buscarCategoriasFiltradas(usuarioLogado.getId(), nome, tipo, ativa, pageable);
 
         return categorias
-                .map(cat -> modelMapper.map(cat, CategoriaResponseDTO.class));
+                .map(categoriaMapper::toCategoriaResponseDTO);
     }
 
     /**
@@ -109,7 +109,7 @@ public class CategoriaService {
 
         verificaSeCategoriaFoiCriadaPeloUsuarioLogado(categoria);
 
-        return modelMapper.map(categoria, CategoriaResponseDTO.class);
+        return categoriaMapper.toCategoriaResponseDTO(categoria);
     }
 
     /**

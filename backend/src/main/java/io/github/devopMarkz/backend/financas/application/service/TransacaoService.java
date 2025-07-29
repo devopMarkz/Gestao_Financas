@@ -2,17 +2,15 @@ package io.github.devopMarkz.backend.financas.application.service;
 
 import io.github.devopMarkz.backend.financas.application.dto.transacao.TransacaoRequestDTO;
 import io.github.devopMarkz.backend.financas.application.dto.transacao.TransacaoResponseDTO;
-import io.github.devopMarkz.backend.financas.domain.model.Categoria;
+import io.github.devopMarkz.backend.financas.application.mappers.TransacaoMapper;
 import io.github.devopMarkz.backend.financas.domain.model.Tipo;
 import io.github.devopMarkz.backend.financas.domain.model.Transacao;
-import io.github.devopMarkz.backend.financas.domain.repository.CategoriaRepository;
 import io.github.devopMarkz.backend.financas.domain.repository.TransacaoRepository;
 import io.github.devopMarkz.backend.financas.infraestrutucture.exception.EntidadeInexistenteException;
 import io.github.devopMarkz.backend.financas.infraestrutucture.exception.OperacaoInvalidaException;
 import io.github.devopMarkz.backend.shared.config.UsuarioAutenticadoService;
 import io.github.devopMarkz.backend.usuario.domain.model.Usuario;
 import jakarta.servlet.http.HttpServletRequest;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -34,18 +32,15 @@ import java.time.LocalDate;
 public class TransacaoService {
 
     private final TransacaoRepository transacaoRepository;
-    private final CategoriaRepository categoriaRepository;
-    private final ModelMapper modelMapper;
     private final HttpServletRequest request;
+    private final TransacaoMapper transacaoMapper;
 
     public TransacaoService(TransacaoRepository transacaoRepository,
-                            CategoriaRepository categoriaRepository,
-                            ModelMapper modelMapper,
-                            HttpServletRequest request) {
+                            HttpServletRequest request,
+                            TransacaoMapper transacaoMapper) {
         this.transacaoRepository = transacaoRepository;
-        this.categoriaRepository = categoriaRepository;
-        this.modelMapper = modelMapper;
         this.request = request;
+        this.transacaoMapper = transacaoMapper;
     }
 
     /**
@@ -59,27 +54,17 @@ public class TransacaoService {
      */
     @Transactional
     public TransacaoResponseDTO salvar(TransacaoRequestDTO transacaoRequest) {
-        Transacao transacao = new Transacao();
-        transacao.setDescricao(transacaoRequest.getDescricao());
-        transacao.setValor(transacaoRequest.getValor());
-        transacao.setDataTransacao(transacaoRequest.getDataTransacao());
-        transacao.setTipo(transacaoRequest.getTipo());
-        transacao.setObservacoes(transacaoRequest.getObservacoes());
-        transacao.setPaga(transacaoRequest.getPaga());
+        Transacao transacao = transacaoMapper.toTransacao(transacaoRequest);
 
-        Categoria categoria = categoriaRepository.findById(transacaoRequest.getCategoriaId())
-                .orElseThrow(() -> new EntidadeInexistenteException("Categoria Inexistente!"));
-
-        if(!transacao.getTipo().name().equalsIgnoreCase(categoria.getTipo().name())) {
-            throw new OperacaoInvalidaException("O tipo '" + transacao.getTipo().name() + "' da transação deve ser igual ao tipo '" + categoria.getTipo().name() + "' da categoria.");
+        if(!transacao.getTipo().name().equalsIgnoreCase(transacao.getCategoria().getTipo().name())) {
+            throw new OperacaoInvalidaException("O tipo '" + transacao.getTipo().name() + "' da transação deve ser igual ao tipo '" + transacao.getCategoria().getTipo().name() + "' da categoria.");
         }
 
-        transacao.setCategoria(categoria);
         transacao.setUsuario(UsuarioAutenticadoService.obterUsuario());
 
         transacao = transacaoRepository.save(transacao);
 
-        return modelMapper.map(transacao, TransacaoResponseDTO.class);
+        return transacaoMapper.toTransacaoResponseDTO(transacao);
     }
 
     /**
@@ -102,7 +87,7 @@ public class TransacaoService {
         Page<Transacao> transacoes = transacaoRepository.filtrarTransacoes(
                 UsuarioAutenticadoService.obterUsuario().getId(), descricao, categoriaId, tipo, valorMin, paga, dataMin, dataMax,
                 PageRequest.of(pageNumber, pageSize));
-        return transacoes.map(transacao -> modelMapper.map(transacao, TransacaoResponseDTO.class));
+        return transacoes.map(transacaoMapper::toTransacaoResponseDTO);
     }
 
     /**
@@ -120,7 +105,7 @@ public class TransacaoService {
 
         verificaSeTransacaoFoiCriadaPeloUsuarioLogado(transacao);
 
-        return modelMapper.map(transacao, TransacaoResponseDTO.class);
+        return transacaoMapper.toTransacaoResponseDTO(transacao);
     }
 
     /**
@@ -140,27 +125,18 @@ public class TransacaoService {
 
         verificaSeTransacaoFoiCriadaPeloUsuarioLogado(transacaoExistente);
 
-        Categoria categoria = categoriaRepository.findById(transacaoRequest.getCategoriaId())
-                .orElseThrow(() -> new EntidadeInexistenteException("Categoria inexistente!"));
+        transacaoExistente = transacaoMapper.toTransacaoUpdated(transacaoRequest);
 
-        if (!transacaoExistente.getTipo().name().equalsIgnoreCase(categoria.getTipo().name())) {
+        if (!transacaoExistente.getTipo().name().equalsIgnoreCase(transacaoExistente.getCategoria().getTipo().name())) {
             throw new OperacaoInvalidaException(
                     "O tipo '" + transacaoExistente.getTipo().name() +
-                            "' da transação deve ser igual ao tipo '" + categoria.getTipo().name() + "' da categoria."
+                            "' da transação deve ser igual ao tipo '" + transacaoExistente.getCategoria().getTipo().name() + "' da categoria."
             );
         }
 
-        transacaoExistente.setDescricao(transacaoRequest.getDescricao());
-        transacaoExistente.setValor(transacaoRequest.getValor());
-        transacaoExistente.setDataTransacao(transacaoRequest.getDataTransacao());
-        transacaoExistente.setTipo(transacaoRequest.getTipo());
-        transacaoExistente.setObservacoes(transacaoRequest.getObservacoes());
-        transacaoExistente.setPaga(transacaoRequest.getPaga());
-        transacaoExistente.setCategoria(categoria);
-
         Transacao atualizado = transacaoRepository.save(transacaoExistente);
 
-        return modelMapper.map(atualizado, TransacaoResponseDTO.class);
+        return transacaoMapper.toTransacaoResponseDTO(atualizado);
     }
 
     /**

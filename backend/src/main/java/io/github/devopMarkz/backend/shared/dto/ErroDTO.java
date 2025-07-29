@@ -1,10 +1,12 @@
 package io.github.devopMarkz.backend.shared.dto;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public class ErroDTO {
 
-    private Instant timestamp;
+    private LocalDateTime timestamp;
     private Integer status;
     private String message;
     private String pat;
@@ -13,17 +15,17 @@ public class ErroDTO {
     }
 
     public ErroDTO(Instant timestamp, Integer status, String message, String pat) {
-        this.timestamp = timestamp;
+        this.timestamp = LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault());
         this.status = status;
         this.message = message;
         this.pat = pat;
     }
 
-    public Instant getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Instant timestamp) {
+    public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 
