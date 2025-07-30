@@ -8,11 +8,14 @@ import io.github.devopMarkz.backend.financas.domain.model.Tipo;
 import io.github.devopMarkz.backend.financas.domain.repository.CategoriaRepository;
 import io.github.devopMarkz.backend.financas.domain.repository.TransacaoRepository;
 import io.github.devopMarkz.backend.financas.infraestrutucture.exception.EntidadeInexistenteException;
+import io.github.devopMarkz.backend.financas.infraestrutucture.exception.IntegridadeReferencialException;
 import io.github.devopMarkz.backend.financas.infraestrutucture.exception.OperacaoInvalidaException;
 import io.github.devopMarkz.backend.shared.config.UsuarioAutenticadoService;
 import io.github.devopMarkz.backend.shared.utils.StringPadronization;
 import io.github.devopMarkz.backend.usuario.domain.model.Usuario;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -146,19 +149,21 @@ public class CategoriaService {
      */
     @Transactional
     public void delete(Long id) {
-        Categoria categoria = categoriaRepository.getReferenceById(id);
+        try{
+            Categoria categoria = categoriaRepository.getReferenceById(id);
 
-        verificaSeCategoriaFoiCriadaPeloUsuarioLogado(categoria);
+            verificaSeCategoriaFoiCriadaPeloUsuarioLogado(categoria);
 
-        if(categoria == null) {
+            if(transacaoRepository.existsByCategoria_Id(categoria.getId())) {
+                throw new OperacaoInvalidaException("Categoria está sendo usada em uma transação e, por isso, não pode ser excluída.");
+            }
+
+            categoriaRepository.deleteById(id);
+        } catch (EntityNotFoundException e) {
             throw new EntidadeInexistenteException("Categoria inexistente!");
-        }
-
-        if(transacaoRepository.existsByCategoria_Id(categoria.getId())) {
+        } catch (DataIntegrityViolationException e) {
             throw new OperacaoInvalidaException("Categoria está sendo usada em uma transação e, por isso, não pode ser excluída.");
         }
-
-        categoriaRepository.deleteById(id);
     }
 
     /**
