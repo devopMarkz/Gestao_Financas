@@ -1,7 +1,5 @@
 package io.github.devopMarkz.backend.financas.interfaces.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.devopMarkz.backend.financas.application.dto.categoria.CategoriaRequestDTO;
 import io.github.devopMarkz.backend.financas.domain.model.Categoria;
 import io.github.devopMarkz.backend.financas.domain.model.Tipo;
@@ -15,7 +13,9 @@ import io.github.devopMarkz.backend.usuario.infraestructure.security.TokenServic
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -23,8 +23,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CategoriaControllerTest {
@@ -38,15 +36,8 @@ class CategoriaControllerTest {
 
     private Usuario usuario;
 
-    private String token;
-
-    private ObjectMapper mapper = new ObjectMapper();
-
     @Autowired
     private CategoriaRepository categoriaRepository;
-
-    @Autowired
-    private UsuarioRepository UsuarioRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -79,7 +70,7 @@ class CategoriaControllerTest {
         usuario.setSenha(passwordEncoder.encode("123456"));
         usuario.setPerfil(Perfil.ROLE_ADMIN);
         usuario.setAtivo(true);
-        usuario = usuarioRepository.save( usuario);
+        usuario = usuarioRepository.save(usuario);
 
         categoria = new Categoria();
         categoria.setNome("Categoria 1");
@@ -93,16 +84,16 @@ class CategoriaControllerTest {
         @Test
         void deveRetornarListaDeCategorias() {
             RestAssured.given()
-                    .contentType("application/json")
-                    .header("Authorization", "Bearer " + getToken(usuario))
+                        .contentType("application/json")
+                        .header("Authorization", "Bearer " + getToken(usuario))
                     .when()
-                    .get("/categorias")
+                        .get("/categorias")
                     .then()
-                    .statusCode(200)
-                    .body("content.size()", Matchers.is(1))
-                    .body("content[0].nome", Matchers.equalTo("Categoria 1"))
-                    .body("content[0].tipo", Matchers.equalTo("RECEITA"))
-                    .body("content[0].ativa", Matchers.equalTo(true));
+                        .statusCode(200)
+                        .body("content.size()", Matchers.is(1))
+                        .body("content[0].nome", Matchers.equalTo("Categoria 1"))
+                        .body("content[0].tipo", Matchers.equalTo("RECEITA"))
+                        .body("content[0].ativa", Matchers.equalTo(true));
         }
     }
 
@@ -136,7 +127,7 @@ class CategoriaControllerTest {
     @Nested
     class SalvarCategoria {
         @Test
-        void deveSalvarCategoria() throws JsonProcessingException {
+        void deveSalvarCategoria() {
             RestAssured.given()
                         .contentType("application/json")
                         .accept(ContentType.JSON)
@@ -204,12 +195,12 @@ class CategoriaControllerTest {
         @Test
         void deveExcluirCategoria() {
             RestAssured.given()
-                    .contentType("application/json")
-                    .header("Authorization", "Bearer " + getToken(usuario))
+                        .contentType("application/json")
+                        .header("Authorization", "Bearer " + getToken(usuario))
                     .when()
-                    .delete("categorias/{id}", categoria.getId())
+                        .delete("categorias/{id}", categoria.getId())
                     .then()
-                    .statusCode(204);
+                        .statusCode(204);
         }
 
         @Test
@@ -223,23 +214,23 @@ class CategoriaControllerTest {
             newUsuario = usuarioRepository.saveAndFlush(newUsuario);
 
             RestAssured.given()
-                    .contentType("application/json")
-                    .header("Authorization", "Bearer " + getToken(newUsuario))
+                        .contentType("application/json")
+                        .header("Authorization", "Bearer " + getToken(newUsuario))
                     .when()
-                    .delete("categorias/{id}", categoria.getId())
+                        .delete("categorias/{id}", categoria.getId())
                     .then()
-                    .statusCode(409);
+                        .statusCode(409);
         }
 
         @Test
         void deveRetornarStatus404_QuandoCategoriaNaoEncontrada() {
             RestAssured.given()
-                    .contentType("application/json")
-                    .header("Authorization", "Bearer " + getToken(usuario))
+                        .contentType("application/json")
+                        .header("Authorization", "Bearer " + getToken(usuario))
                     .when()
-                    .delete("categorias/{id}", Long.MAX_VALUE)
+                        .delete("categorias/{id}", Long.MAX_VALUE)
                     .then()
-                    .statusCode(404);
+                        .statusCode(404);
         }
 
         @Test
@@ -256,12 +247,12 @@ class CategoriaControllerTest {
             transacao = transacaoRepository.saveAndFlush(transacao);
 
             RestAssured.given()
-                    .contentType("application/json")
-                    .header("Authorization", "Bearer " + getToken(usuario))
+                        .contentType("application/json")
+                        .header("Authorization", "Bearer " + getToken(usuario))
                     .when()
-                    .delete("categorias/{id}", categoria.getId())
+                        .delete("categorias/{id}", categoria.getId())
                     .then()
-                    .statusCode(409);
+                        .statusCode(409);
 
             transacaoRepository.delete(transacao);
         }
